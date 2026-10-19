@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Isomorphism Checker | Graph Theory</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--sky:#38bdf8;--sky-l:#7dd3fc;--black:#04060a;--lime:#a3e635;--amber:#fbbf24;--violet:#a78bfa;--orange:#fb923c;--blue:#7dd3fc;--deep:#38bdf8;--gold:#ff5d9e;--gold-l:#ffb0d0;--paper:#070a0f;--card:#0d141d;--card2:#131d29;--ink:#e8f3fb;--mut:#9db4c8;--line:#25374c;--ok:#4ade80;--bad:#ff6b81}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.55 'Bricolage Grotesque',system-ui,sans-serif;color:var(--ink);background:var(--paper)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+nav.top{background:var(--deep);color:#fff;display:flex;flex-wrap:wrap;gap:4px 22px;align-items:center;padding:12px 24px}
+nav.top .brand{font-weight:800;margin-right:auto}
+nav.top .brand small{display:block;font-weight:400;color:var(--gold-l);font-size:.72rem}
+nav.top a{text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
+nav.top a:hover,nav.top a.here{border-color:var(--gold)}
+.head{background:var(--blue);color:#fff;padding:36px 24px}
+.head div{max-width:1080px;margin:0 auto}
+.head h1{margin:0;font-size:clamp(2rem,6vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1}
+.head p{margin:8px 0 0;color:#b9d6ec;max-width:60ch}
+.head .crumb{color:var(--gold-l);font-size:.9rem;margin:0 0 8px}
+main{max-width:1080px;margin:0 auto;padding:24px 16px 56px}
+button,select,input{font:inherit;color:var(--ink)}
+button,select,input[type=number]{background:var(--card);border:2px solid var(--deep);border-radius:8px;padding:6px 12px;cursor:pointer}
+input[type=number]{width:60px;cursor:text}
+button:hover{background:var(--gold-l)}
+button.on{background:var(--deep);color:#fff}
+button.danger{border-color:#ff6b81;color:#ff6b81}
+button.big{background:var(--gold);border-color:var(--gold);font-weight:800;padding:11px 24px;font-size:1.05rem}
+button.big:hover{background:var(--gold-l)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.lbl{color:var(--mut);font-size:.9rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:780px){.two{grid-template-columns:1fr}}
+.gc{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px}
+.gc.active{border-color:var(--deep);box-shadow:0 0 0 3px var(--gold)}
+.gc h2{margin:0 0 6px;font-size:1.1rem;color:var(--blue);display:flex;justify-content:space-between;gap:8px}
+.gc h2 span{font-weight:400;font-size:.82rem;color:var(--mut)}
+.mini{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.mini button,.mini select{padding:3px 8px;font-size:.85rem}
+canvas{width:100%;aspect-ratio:11/8;display:block;touch-action:none;cursor:crosshair;border-radius:8px;
+background-image:linear-gradient(#18293c 1px,transparent 1px),linear-gradient(90deg,#18293c 1px,transparent 1px);background-size:24px 24px}
+.sum{font-size:.9rem;color:var(--mut);margin:6px 2px 0}
+.sum b{color:var(--deep)}
+.panel{background:var(--card);border:2px solid var(--deep);border-radius:14px;padding:16px;margin-top:18px}
+.panel h2{margin:0 0 10px;font-size:1.1rem;color:var(--blue)}
+.verdict{padding:12px 16px;border-radius:10px;border-left:6px solid var(--line);background:var(--paper);margin-bottom:12px}
+.verdict.ok{border-color:#4ade80}.verdict.no{border-color:#ff6b81}
+.verdict b{font-size:1.2rem}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600}
+.yes{color:#4ade80;font-weight:800}.no{color:#ff6b81;font-weight:800}
+#animMsg{font-weight:600;color:var(--deep);min-height:1.6em;margin:0 0 4px}
+.map{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.map span{padding:3px 10px;border-radius:999px;font-weight:800;font-size:.9rem;color:#05070a}
+.learn{margin-top:18px;border-left:5px solid var(--gold);background:var(--card);padding:12px 16px;border-radius:0 12px 12px 0}
+.learn h2{margin:0 0 4px;font-size:1.05rem;color:var(--blue)}
+.learn p{margin:0 0 6px;color:var(--mut)}
+.next{display:flex;justify-content:space-between;margin-top:26px;gap:10px;flex-wrap:wrap}
+.next a{background:var(--gold);color:var(--deep);font-weight:800;text-decoration:none;padding:10px 20px;border-radius:999px}
+.next a.sec{background:transparent;border:2px solid var(--deep)}
+
+/* ---- slim top bar + left slide-out menu ---- */
+.bar{position:sticky;top:0;z-index:40;background:var(--deep);color:#fff;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.menu-btn{display:flex;align-items:center;gap:10px;background:transparent;color:#fff;border:2px solid var(--gold-l);border-radius:10px;padding:7px 14px;font:inherit;font-weight:700;cursor:pointer}
+.menu-btn:hover{background:rgba(255,255,255,.12)}
+.burger,.burger::before,.burger::after{display:block;width:18px;height:2px;background:currentColor;border-radius:2px;content:"";position:relative}
+.burger::before{position:absolute;top:-6px}.burger::after{position:absolute;top:6px}
+.bar-brand{text-decoration:none;color:#fff;font-weight:800;line-height:1.15}
+.bar-brand small{display:block;font-weight:400;color:var(--gold-l);font-size:.72rem}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50}
+.drawer{position:fixed;top:0;bottom:0;left:0;width:min(310px,86vw);background:var(--deep);color:#fff;z-index:60;padding:18px 0 24px;overflow:auto;
+transform:translateX(-102%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s;box-shadow:6px 0 24px rgba(0,0,0,.3)}
+body.menu-open .drawer{transform:none;visibility:visible;transition:transform .25s ease,visibility 0s}
+@media(prefers-reduced-motion:reduce){.drawer,body.menu-open .drawer{transition:none}}
+.dr-head{display:flex;justify-content:space-between;align-items:center;padding:0 18px 12px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
+.dr-head b{font-size:1.15rem}.dr-head small{display:block;font-weight:400;color:var(--gold-l);font-size:.75rem}
+.dr-head button{background:transparent;border:2px solid var(--gold-l);color:#fff;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+.drawer h2{margin:16px 18px 4px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-l);font-weight:600}
+.drawer a{display:block;color:#fff;text-decoration:none;padding:10px 18px 10px 22px;border-left:4px solid transparent;font-size:1.02rem}
+.drawer a:hover{background:rgba(255,255,255,.1);border-left-color:var(--gold-l)}
+.drawer a.here{border-left-color:var(--gold);background:rgba(56,189,248,.2);font-weight:800}
+.drawer :focus-visible,.menu-btn:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+body.menu-open{overflow:hidden}
+
+/* ===== Black + sky blue theme ===== */
+html{color-scheme:dark}
+input,select,progress{accent-color:var(--sky)}
+body{background-color:var(--paper);background-image:linear-gradient(rgba(56,189,248,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.055) 1px,transparent 1px);background-size:34px 34px;color:var(--ink)}
+.bar{background:var(--black);border-bottom:2px solid var(--sky)}
+.bar-brand{color:#fff}.bar-brand small{color:var(--sky-l)}
+.menu-btn{border-color:var(--sky);color:var(--sky-l)}.menu-btn:hover{background:rgba(56,189,248,.16)}
+.scrim{background:rgba(0,0,0,.72)}
+.drawer{background:#070b11;border-right:2px solid var(--sky);box-shadow:8px 0 30px rgba(0,0,0,.6)}
+.dr-head{border-bottom-color:rgba(56,189,248,.35)}.dr-head small{color:var(--sky-l)}
+.dr-head button{border-color:var(--sky);color:var(--sky-l)}
+.drawer h2:nth-of-type(1){color:var(--sky-l)}.drawer h2:nth-of-type(2){color:var(--lime)}.drawer h2:nth-of-type(3){color:var(--gold)}
+.drawer a:hover{background:rgba(56,189,248,.14);border-left-color:var(--sky)}
+.drawer a.here{background:rgba(56,189,248,.2);border-left-color:var(--gold)}
+.head{background:radial-gradient(900px 320px at 92% -70%,rgba(56,189,248,.5),transparent 70%),radial-gradient(500px 200px at 0% 120%,rgba(255,93,158,.2),transparent 70%),linear-gradient(180deg,#04070b,#0a1119);color:#fff;border-bottom:3px solid var(--sky)}
+.head h1{color:#fff}.head p{color:#b9d6ec}.head .crumb{color:var(--gold)}
+button:hover,button.b:hover{background:rgba(56,189,248,.16)}
+.btn,button.go,button.big,button.b.go,.next a{background:var(--gold);border-color:var(--gold);color:#05070a}
+.btn:hover,button.go:hover,button.big:hover,button.b.go:hover,.next a:hover{background:#ff86b8;border-color:#ff86b8;color:#05070a}
+.btn.sec,.btn.alt,.next a.sec{background:transparent;border:2px solid var(--sky);color:var(--ink)}
+.btn.sec:hover,.btn.alt:hover,.next a.sec:hover{background:rgba(56,189,248,.16);border-color:var(--sky);color:var(--ink)}
+.btn.ghost{background:transparent;color:#fff;border:2px solid var(--sky)}.btn.ghost:hover{background:rgba(56,189,248,.16)}
+button.on,.chip.on{background:var(--sky);color:#05070a;border-color:var(--sky)}button.on:hover{background:var(--sky-l)}
+button:disabled:hover{background:inherit}
+.tag{background:var(--sky);color:#05070a}
+.dot,.tk{color:#05070a}
+.opt.sel{background:rgba(56,189,248,.18)}.opt.sel b{background:var(--sky);color:#05070a;border-color:var(--sky)}
+.pc.pick{color:#05070a}
+.lvl.hit,.lvl.hit b{color:#05070a}
+.hero{background:radial-gradient(1100px 620px at 82% 8%,rgba(56,189,248,.3),transparent 62%),radial-gradient(760px 520px at 4% 100%,rgba(255,93,158,.2),transparent 62%),#04060a}
+.hero h1 span{background:linear-gradient(90deg,var(--sky),#c084fc 55%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.toc a:hover{background:rgba(56,189,248,.12);color:var(--ink)}
+.toc li{border-top-color:rgba(56,189,248,.45)}.toc li:last-child{border-bottom-color:rgba(56,189,248,.45)}
+.toc li:nth-child(8n+1) a::before,.toc li:nth-child(8n+1) .go{color:var(--sky)}
+.toc li:nth-child(8n+2) a::before,.toc li:nth-child(8n+2) .go{color:var(--gold)}
+.toc li:nth-child(8n+3) a::before,.toc li:nth-child(8n+3) .go{color:var(--lime)}
+.toc li:nth-child(8n+4) a::before,.toc li:nth-child(8n+4) .go{color:var(--amber)}
+.toc li:nth-child(8n+5) a::before,.toc li:nth-child(8n+5) .go{color:var(--violet)}
+.toc li:nth-child(8n+6) a::before,.toc li:nth-child(8n+6) .go{color:var(--orange)}
+.toc li:nth-child(8n+7) a::before,.toc li:nth-child(8n+7) .go{color:var(--sky-l)}
+.toc li:nth-child(8n+8) a::before,.toc li:nth-child(8n+8) .go{color:var(--lime)}
+.def:nth-child(1){border-left-color:var(--sky)}.def:nth-child(1) h3{color:var(--sky-l)}
+.def:nth-child(2){border-left-color:var(--gold)}.def:nth-child(2) h3{color:#ff9cc7}
+.def:nth-child(3){border-left-color:var(--lime)}.def:nth-child(3) h3{color:var(--lime)}
+.num:nth-child(4n+1){border-left-color:var(--sky)}.num:nth-child(4n+2){border-left-color:var(--gold)}.num:nth-child(4n+3){border-left-color:var(--lime)}.num:nth-child(4n+4){border-left-color:var(--amber)}
+footer{background:var(--black);border-top:2px solid var(--sky);color:#9db4c8}footer b{color:var(--sky-l)}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="drawer"><span class="burger"></span>Menu</button>
+  <a class="bar-brand" href="index.html">Graph Theory<small>Wits School of Education</small></a>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<nav class="drawer" id="drawer" aria-label="Main" aria-hidden="true">
+  <div class="dr-head"><div><b>Graph Theory</b><small>Wits School of Education</small></div><button id="menuClose" aria-label="Close menu">✕</button></div>
+  <h2>Start</h2>
+  <a href="index.html">Home</a>
+  <a href="index.html#contents">Table of contents</a>
+  <h2>Learn</h2>
+  <a href="playground.html">Playground</a>
+  <a href="navigate.html">Navigating Graphs</a>
+  <a href="subgraph.html">Subgraphs</a>
+  <a href="isomorphism.html" class="here" aria-current="page">Isomorphism</a>
+  <a href="pascal.html">Pascal's Triangle</a>
+  <a href="complement.html">Complement</a>
+  <h2>Practise &amp; play</h2>
+  <a href="quiz.html">Test yourself</a>
+  <a href="game.html">Bonus game</a>
+</nav>
+
+<header class="head"><div>
+  <p class="crumb">Chapter 4</p>
+  <h1>Isomorphism Checker</h1>
+  <p>Two graphs are isomorphic when you can rename the vertices of one so that it becomes exactly the other. Draw two graphs and find out.</p>
+</div></header>
+
+<main>
+  <div class="row" role="toolbar" aria-label="Drawing tools">
+    <span class="lbl">Tool (applies to the selected graph)</span>
+    <button data-mode="vertex" class="on">Add vertex</button>
+    <button data-mode="edge">Add edge</button>
+    <button data-mode="move">Move</button>
+    <button data-mode="del">Delete</button>
+    <span class="lbl" id="cpMsg" aria-live="polite"></span>
+  </div>
+
+  <div class="two">
+    <div class="gc active" id="gcA"><h2>Graph A <span>click to select</span></h2>
+      <div class="mini"><select data-p="A" aria-label="Preset for graph A"><option value="">Preset…</option><option>complete</option><option>cycle</option><option>path</option><option>star</option><option>wheel</option><option>petersen</option><option>random</option></select>
+      <input type="number" data-n="A" min="1" max="12" value="5" aria-label="n for graph A"><button data-clear="A" class="danger">Clear</button><button data-copy="A" title="Copy this graph">Copy</button><button data-paste="A" title="Paste a copied graph here">Paste</button></div>
+      <canvas id="cA" aria-label="Graph A drawing area"></canvas><p class="sum" id="sA"></p></div>
+    <div class="gc" id="gcB"><h2>Graph B <span>click to select</span></h2>
+      <div class="mini"><select data-p="B" aria-label="Preset for graph B"><option value="">Preset…</option><option>complete</option><option>cycle</option><option>path</option><option>star</option><option>wheel</option><option>petersen</option><option>random</option></select>
+      <input type="number" data-n="B" min="1" max="12" value="5" aria-label="n for graph B"><button data-clear="B" class="danger">Clear</button><button data-copy="B" title="Copy this graph">Copy</button><button data-paste="B" title="Paste a copied graph here">Paste</button>
+      <button id="scr" title="Copy A into B with vertices shuffled and moved">Scramble copy of A</button></div>
+      <canvas id="cB" aria-label="Graph B drawing area"></canvas><p class="sum" id="sB"></p></div>
+  </div>
+
+  <div class="row" style="margin-top:18px">
+    <button class="big" id="cmp">Are they isomorphic?</button>
+    <button class="big" id="anim">▶ Animate B into A</button>
+    <button id="rst">Reset B</button>
+    <label class="lbl" for="spd">Speed</label>
+    <select id="spd" aria-label="Animation speed"><option value="1500">Slow</option><option value="900" selected>Normal</option><option value="450">Fast</option></select>
+  </div>
+  <p id="animMsg" aria-live="polite"></p>
+  <p class="lbl" style="margin-top:0">Tip: press "Scramble copy of A", then "Animate B into A" to watch a scrambled graph untangle into the original.</p>
+
+  <div class="panel" id="out" hidden>
+    <div id="verdict"></div>
+    <h2>Invariants compared</h2>
+    <table><thead><tr><th>Property</th><th>Graph A</th><th>Graph B</th><th>Same?</th></tr></thead><tbody id="inv"></tbody></table>
+  </div>
+
+  <div class="learn">
+    <h2>How the checker thinks</h2>
+    <p>First it compares quick checks: the number of vertices, the number of edges, the degrees of the vertices, and the cyclic subgraphs (here the triangles, quadrilaterals and pentagons). If any of these differ, the graphs cannot be isomorphic.</p>
+    <p>If they all match, that is not proof. It then tries to pair up vertices one by one, keeping only pairings where every edge and non-edge agrees, and backs up when it gets stuck.</p>
+    <p>The animation uses the pairing it finds. Each vertex of B glides onto the vertex of A it is matched with, and once it arrives it takes that vertex's number. When every vertex has moved, the two drawings are identical, which is exactly what isomorphic means.</p>
+  </div>
+
+  <div class="next"><a class="sec" href="subgraph.html">← Subgraphs</a><a href="pascal.html">Next: Pascal's Triangle →</a></div>
+</main>
+
+<script>
+const W=440,H=320,$=id=>document.getElementById(id);
+const key=(a,b)=>a<b?a+'-'+b:b+'-'+a,ends=k=>k.split('-').map(Number);
+const mk=()=>({v:[],e:[],next:1,sel:null,hl:{}});
+const G={A:mk(),B:mk()};let cur='A',mode='vertex',drag=null;
+const cv={A:$('cA'),B:$('cB')};
+Object.values(cv).forEach(c=>{const r=devicePixelRatio||1;c.width=W*r;c.height=H*r});
+const vx=(g,id)=>g.v.find(p=>p.id===id),has=(g,a,b)=>g.e.includes(key(a,b));
+function addV(g,x,y){const id=g.next++;g.v.push({id,x,y});g.hl={};return id}
+function addE(g,a,b){if(a!==b&&vx(g,a)&&vx(g,b)&&!has(g,a,b)){g.e.push(key(a,b));g.hl={}}}
+function delE(g,a,b){const i=g.e.indexOf(key(a,b));if(i>=0){g.e.splice(i,1);g.hl={}}}
+function delV(g,id){g.v=g.v.filter(p=>p.id!==id);g.e=g.e.filter(k=>!ends(k).includes(id));g.hl={}}
+function adj(g){const m={};g.v.forEach(p=>m[p.id]=[]);g.e.forEach(k=>{const[a,b]=ends(k);m[a].push(b);m[b].push(a)});return m}
+function comps(g,m){const s=new Set();let c=0;g.v.forEach(p=>{if(s.has(p.id))return;c++;const st=[p.id];s.add(p.id);while(st.length){const u=st.pop();m[u].forEach(w=>{if(!s.has(w)){s.add(w);st.push(w)}})}});return c}
+function cycCounts(g,m){const cnt={3:0,4:0,5:0};
+  g.v.forEach(({id:s})=>{const path=[s],seen=new Set([s]);
+    (function go(u){for(const w of m[u]){
+      if(w===s&&path.length>=3&&path[1]<path[path.length-1])cnt[path.length]++;
+      else if(!seen.has(w)&&w>s&&path.length<5){seen.add(w);path.push(w);go(w);path.pop();seen.delete(w)}}})(s)});
+  return[cnt[3],cnt[4],cnt[5]]}
+function info(g){const m=adj(g),d={};g.v.forEach(p=>d[p.id]=m[p.id].length);
+  return{n:g.v.length,e:g.e.length,d,m,ds:Object.values(d).sort((a,b)=>b-a),cy:cycCounts(g,m)}}
+
+function preset(g,type,n){
+  g.v=[];g.e=[];g.next=1;g.hl={};g.sel=null;g.lab=null;const cx=W/2,cy=H/2,R=Math.min(W,H)/2-34;n=Math.max(1,Math.min(n||5,12));
+  const ring=(k,r)=>Array.from({length:k},(_,i)=>{const a=2*Math.PI*i/k-Math.PI/2;return addV(g,cx+r*Math.cos(a),cy+r*Math.sin(a))});
+  if(type==='complete'){const r=ring(n,R);r.forEach((a,i)=>r.slice(i+1).forEach(b=>addE(g,a,b)))}
+  else if(type==='cycle'){const r=ring(Math.max(n,3),R);r.forEach((a,i)=>addE(g,a,r[(i+1)%r.length]))}
+  else if(type==='path'){const ids=Array.from({length:n},(_,i)=>addV(g,40+i*(W-80)/Math.max(n-1,1),cy+(i%2?18:-18)));ids.forEach((a,i)=>i&&addE(g,ids[i-1],a))}
+  else if(type==='star'){const c=addV(g,cx,cy);ring(n,R).forEach(a=>addE(g,c,a))}
+  else if(type==='wheel'){const c=addV(g,cx,cy),r=ring(Math.max(n,3),R);r.forEach((a,i)=>{addE(g,c,a);addE(g,a,r[(i+1)%r.length])})}
+  else if(type==='petersen'){const o=ring(5,R),i=ring(5,R*.5);for(let k=0;k<5;k++){addE(g,o[k],o[(k+1)%5]);addE(g,o[k],i[k]);addE(g,i[k],i[(k+2)%5])}}
+  else if(type==='random'){const r=ring(n,R);for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(Math.random()<.4)addE(g,r[i],r[j])}
+}
+
+function draw(n){
+  const g=G[n],c=cv[n],x=c.getContext('2d'),r=devicePixelRatio||1;
+  x.setTransform(r,0,0,r,0,0);x.clearRect(0,0,W,H);x.lineCap='round';x.lineWidth=3;x.strokeStyle='#38bdf8';
+  g.e.forEach(k=>{const[a,b]=ends(k),p=vx(g,a),q=vx(g,b);x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.stroke()});
+  x.font='800 13px "Bricolage Grotesque",sans-serif';x.textAlign='center';x.textBaseline='middle';
+  g.v.forEach(p=>{x.beginPath();x.arc(p.x,p.y,16,0,7);x.fillStyle=g.hl[p.id]!==undefined?`hsl(${g.hl[p.id]},80%,68%)`:'#fbbf24';x.fill();
+    x.lineWidth=g.sel===p.id?5:2.5;x.strokeStyle=g.sel===p.id?'#ff5d9e':'#e8f3fb';x.stroke();x.fillStyle='#05070a';x.fillText((g.lab&&g.lab[p.id])||p.id,p.x,p.y+1)});
+}
+function refresh(){['A','B'].forEach(n=>{draw(n);const i=info(G[n]);$('s'+n).innerHTML=`<b>${i.n}</b> vertices · <b>${i.e}</b> edges · degrees (${i.ds.join(', ')||'none'})`});
+  $('gcA').classList.toggle('active',cur==='A');$('gcB').classList.toggle('active',cur==='B')}
+
+const pos=(c,e)=>{const r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}};
+const hitV=(g,p)=>[...g.v].reverse().find(v=>Math.hypot(v.x-p.x,v.y-p.y)<=18);
+const hitE=(g,p)=>g.e.find(k=>{const[a,b]=ends(k),s=vx(g,a),t=vx(g,b),dx=t.x-s.x,dy=t.y-s.y,u=Math.max(0,Math.min(1,((p.x-s.x)*dx+(p.y-s.y)*dy)/(dx*dx+dy*dy||1)));return Math.hypot(s.x+u*dx-p.x,s.y+u*dy-p.y)<8});
+['A','B'].forEach(n=>{const c=cv[n];
+  c.addEventListener('pointerdown',e=>{G.B.lab=null;cur=n;const g=G[n],p=pos(c,e),v=hitV(g,p);
+    if(mode==='vertex'&&!v)addV(g,p.x,p.y);
+    else if(mode==='edge'){if(v){if(g.sel&&g.sel!==v.id){has(g,g.sel,v.id)?delE(g,g.sel,v.id):addE(g,g.sel,v.id);g.sel=null}else g.sel=v.id}else g.sel=null}
+    else if(mode==='move'&&v){drag={g,v};c.setPointerCapture(e.pointerId)}
+    else if(mode==='del'){if(v)delV(g,v.id);else{const k=hitE(g,p);if(k)delE(g,...ends(k))}}
+    refresh()});
+  c.addEventListener('pointermove',e=>{if(drag&&drag.g===G[n]){const p=pos(c,e);drag.v.x=Math.max(18,Math.min(W-18,p.x));drag.v.y=Math.max(18,Math.min(H-18,p.y));draw(n)}});
+  c.addEventListener('pointerup',()=>drag=null)});
+$('gcA').addEventListener('click',()=>{cur='A';refresh()});$('gcB').addEventListener('click',()=>{cur='B';refresh()});
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;G.A.sel=G.B.sel=null;document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('on',x===b));refresh()});
+document.querySelectorAll('[data-p]').forEach(s=>s.onchange=()=>{const n=s.dataset.p;if(s.value)preset(G[n],s.value,+document.querySelector(`[data-n=${n}]`).value);s.value='';cur=n;refresh()});
+document.querySelectorAll('[data-clear]').forEach(b=>b.onclick=()=>{G[b.dataset.clear]=mk();refresh()});
+$('scr').onclick=()=>{ /* B = A with shuffled labels and re-scattered positions */
+  const a=G.A,ids=a.v.map(p=>p.id),sh=[...ids].sort(()=>Math.random()-.5),mp={};ids.forEach((u,i)=>mp[u]=sh[i]);
+  const b=mk();b.next=a.next;
+  const pts=a.v.map(p=>({x:30+Math.random()*(W-60),y:30+Math.random()*(H-60)}));
+  a.v.forEach((p,i)=>b.v.push({id:mp[p.id],x:pts[i].x,y:pts[i].y}));
+  a.e.forEach(k=>{const[u,w]=ends(k);b.e.push(key(mp[u],mp[w]))});G.B=b;cur='B';refresh()};
+
+function iso(a,b){
+  const A=info(a),B=info(b),why=[];
+  if(A.n!==B.n)why.push('The vertex counts differ.');if(A.e!==B.e)why.push('The edge counts differ.');
+  if(A.ds.join()!==B.ds.join())why.push('The vertices have different degrees: the numbers of vertices of each degree do not match.');if(A.cy.join()!==B.cy.join())why.push(`The cyclic subgraphs differ. Triangles, quadrilaterals and pentagons: ${A.cy.join(', ')} in A against ${B.cy.join(', ')} in B.`);
+  if(why.length)return{ok:false,why,A,B};
+  const nb=(i,id)=>i.m[id].map(w=>i.d[w]).sort().join();
+  const va=a.v.map(p=>p.id).sort((x,y)=>A.d[y]-A.d[x]),vb=b.v.map(p=>p.id),map={},used=new Set();
+  const go=i=>{if(i===va.length)return true;const u=va[i];
+    for(const w of vb){if(used.has(w)||A.d[u]!==B.d[w]||nb(A,u)!==nb(B,w))continue;
+      let fine=true;for(const k in map)if(has(a,u,+k)!==has(b,w,map[k])){fine=false;break}
+      if(!fine)continue;map[u]=w;used.add(w);if(go(i+1))return true;delete map[u];used.delete(w)}return false};
+  return go(0)?{ok:true,map,A,B}:{ok:false,why:['Every cheap invariant matches, but no way of pairing the vertices keeps all the edges. Same numbers, different structure.'],A,B}
+}
+$('cmp').onclick=()=>{
+  const r=iso(G.A,G.B);G.A.hl={};G.B.hl={};$('out').hidden=false;
+  const yn=(s)=>s?'<span class="yes">yes</span>':'<span class="no">no</span>';
+  const rows=[['Vertices',r.A.n,r.B.n],['Edges',r.A.e,r.B.e],['Degrees of the vertices, largest first','('+r.A.ds.join(', ')+')','('+r.B.ds.join(', ')+')'],['Triangles / quadrilaterals / pentagons',r.A.cy.join(' / '),r.B.cy.join(' / ')]];
+  $('inv').innerHTML=rows.map(([l,x,y])=>`<tr><td>${l}</td><td>${x}</td><td>${y}</td><td>${yn(x===y)}</td></tr>`).join('');
+  if(r.ok){let i=0;const chips=[];
+    Object.entries(r.map).forEach(([u,w])=>{const h=(i++*67)%360;G.A.hl[u]=h;G.B.hl[w]=h;chips.push(`<span style="background:hsl(${h},80%,68%)">A${u} → B${w}</span>`)});
+    $('verdict').innerHTML=`<div class="verdict ok"><b>Isomorphic ✓</b><br>Renaming the vertices of A as below gives exactly B. Matching vertices share a colour in both drawings.<div class="map">${chips.join('')}</div></div>`}
+  else $('verdict').innerHTML=`<div class="verdict no"><b>Not isomorphic ✗</b><br>${r.why.join('<br>')}</div>`;
+  refresh();$('out').scrollIntoView({behavior:'smooth',block:'nearest'})};
+
+
+/* ---------- animation: move B onto A using the isomorphism ---------- */
+let raf=0,origB=null;
+const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const bSig=()=>JSON.stringify([G.B.v.map(p=>p.id),G.B.e]);
+function resetB(){cancelAnimationFrame(raf);
+  if(origB&&origB.sig===bSig())G.B.v.forEach(p=>{const o=origB.pos[p.id];if(o){p.x=o.x;p.y=o.y}});
+  G.B.lab=null;G.A.hl={};G.B.hl={};$('animMsg').textContent='';refresh()}
+function animateIso(){
+  cancelAnimationFrame(raf);const msg=$('animMsg');
+  if(!G.A.v.length){msg.textContent='Draw something in Graph A first, then press the button again.';return}
+  if(!G.B.v.length)$('scr').onclick();
+  const r=iso(G.A,G.B);
+  if(!r.ok){G.A.hl={};G.B.hl={};G.B.lab=null;refresh();
+    msg.textContent='These graphs are not isomorphic, so no moving or renaming can turn B into A. '+r.why[0]+' Try "Scramble copy of A" for a pair that does work.';return}
+  const sig=bSig();
+  if(origB&&origB.sig===sig)G.B.v.forEach(p=>{const o=origB.pos[p.id];p.x=o.x;p.y=o.y});
+  else origB={sig,pos:Object.fromEntries(G.B.v.map(p=>[p.id,{x:p.x,y:p.y}]))};
+  G.B.lab={};G.A.hl={};G.B.hl={};
+  const sp=still?1:+$('spd').value;
+  const jobs=Object.entries(r.map).map(([u,w],k)=>{const bv=vx(G.B,+w),av=vx(G.A,+u),h=(k*67)%360;G.A.hl[u]=h;G.B.hl[w]=h;
+    return{u:+u,w:+w,bv,x0:bv.x,y0:bv.y,x1:av.x,y1:av.y,d:k*sp*.55}});
+  const ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2,t0=performance.now();
+  (function frame(t){
+    const el=t-t0;let active=null,fin=0;
+    jobs.forEach(j=>{const p=Math.max(0,Math.min(1,(el-j.d)/sp)),e=ease(p);
+      j.bv.x=j.x0+(j.x1-j.x0)*e;j.bv.y=j.y0+(j.y1-j.y0)*e;
+      if(p>=.5)G.B.lab[j.w]=j.u;if(p>0&&p<1&&!active)active=j;if(p>=1)fin++});
+    draw('A');draw('B');
+    msg.textContent=fin===jobs.length?"Done! B now has exactly the same shape as A. Every vertex moved onto its partner and took its partner's number.":active?`Moving B's vertex ${active.w} onto A's vertex ${active.u}…`:'Starting…';
+    if(fin<jobs.length)raf=requestAnimationFrame(frame);else refresh();
+  })(performance.now());
+}
+$('anim').onclick=animateIso;$('rst').onclick=resetB;
+
+
+/* ---------- copy / paste graphs between chapters ---------- */
+const CLIP_KEY='gt-copied-graph';
+function flash(m){const el=document.getElementById('cpMsg');if(el)el.textContent=m}
+function packGraph(g){return 'GT1:'+JSON.stringify({v:g.v.map(p=>[p.id,Math.round(p.x),Math.round(p.y)]),e:g.e})}
+function unpackGraph(t){try{t=(t||'').trim();if(t.slice(0,4)!=='GT1:')return null;const d=JSON.parse(t.slice(4));
+  if(!Array.isArray(d.v)||!Array.isArray(d.e)||!d.v.length)return null;
+  d.v=d.v.filter(a=>Array.isArray(a)&&a.length===3&&a.every(Number.isFinite));const ids=new Set(d.v.map(a=>a[0]));
+  d.e=d.e.filter(k=>typeof k==='string'&&/^\d+-\d+$/.test(k)&&k.split('-').every(x=>ids.has(+x)));return d.v.length?d:null}catch(e){return null}}
+function copyGraph(g){
+  if(!g.v.length){flash('Nothing to copy yet. Draw a graph first.');return}
+  const code=packGraph(g);try{localStorage.setItem(CLIP_KEY,code)}catch(e){}
+  try{navigator.clipboard.writeText(code).catch(()=>{})}catch(e){}
+  flash(`Copied ${g.v.length} vertices and ${g.e.length} edges. Open another chapter and press Paste.`)}
+async function readClip(){let t=null;try{t=localStorage.getItem(CLIP_KEY)}catch(e){}
+  if(!unpackGraph(t)){try{t=await navigator.clipboard.readText()}catch(e){}}
+  if(!unpackGraph(t))t=prompt('No copied graph found automatically. Paste the graph code here (Ctrl+V):');
+  const d=unpackGraph(t);if(!d)flash('No copied graph found. Press Copy on another page first.');return d}
+function fillGraph(g,d){g.v=d.v.map(([id,x,y])=>({id,x:Math.max(18,Math.min(W-18,x)),y:Math.max(18,Math.min(H-18,y))}));
+  g.e=[...d.e];g.next=Math.max(0,...g.v.map(p=>p.id))+1;g.sel=null;g.hl={};g.hiE=null;g.lab=null}
+document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>copyGraph(G[b.dataset.copy]));
+document.querySelectorAll('[data-paste]').forEach(b=>b.onclick=async()=>{const d=await readClip();if(!d)return;const n=b.dataset.paste;
+  cancelAnimationFrame(raf);fillGraph(G[n],d);G.A.hl={};G.B.hl={};G.B.lab=null;cur=n;$('out').hidden=true;$('animMsg').textContent='';refresh();flash(`Pasted into Graph ${n}: ${d.v.length} vertices, ${d.e.length} edges.`)});
+preset(G.A,'cycle',5);preset(G.B,'path',5);refresh();
+</script>
+<script>
+(function(){const b=document.body,btn=document.getElementById('menuBtn'),dr=document.getElementById('drawer'),sc=document.getElementById('scrim');
+function set(o,f){b.classList.toggle('menu-open',o);btn.setAttribute('aria-expanded',o);dr.setAttribute('aria-hidden',!o);sc.hidden=!o;
+  if(f!==false){if(o){const a=dr.querySelector('a.here')||dr.querySelector('a');a&&a.focus()}else btn.focus()}}
+btn.onclick=()=>set(!b.classList.contains('menu-open'));
+document.getElementById('menuClose').onclick=()=>set(false);sc.onclick=()=>set(false);
+dr.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false,false)));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&b.classList.contains('menu-open'))set(false)});})();
+</script>
+</body>
+</html>

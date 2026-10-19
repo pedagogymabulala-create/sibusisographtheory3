@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Colour Escape | Bonus Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--sky:#38bdf8;--sky-l:#7dd3fc;--black:#04060a;--lime:#a3e635;--amber:#fbbf24;--violet:#a78bfa;--orange:#fb923c;--blue:#7dd3fc;--deep:#38bdf8;--gold:#ff5d9e;--gold-l:#ffb0d0;--paper:#070a0f;--card:#0d141d;--card2:#131d29;--ink:#e8f3fb;--mut:#9db4c8;--line:#25374c;--ok:#4ade80;--bad:#ff6b81}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.55 'Bricolage Grotesque',system-ui,sans-serif;color:var(--ink);background:var(--paper)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+nav.top{background:var(--deep);color:#fff;display:flex;flex-wrap:wrap;gap:4px 22px;align-items:center;padding:12px 24px}
+nav.top .brand{font-weight:800;margin-right:auto}
+nav.top .brand small{display:block;font-weight:400;color:var(--gold-l);font-size:.72rem}
+nav.top a{text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
+nav.top a:hover,nav.top a.here{border-color:var(--gold)}
+.head{background:var(--blue);color:#fff;padding:36px 24px}
+.head div{max-width:1080px;margin:0 auto}
+.head h1{margin:0;font-size:clamp(2rem,6vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1}
+.head p{margin:8px 0 0;color:#b9d6ec;max-width:62ch}
+.head .crumb{color:var(--gold-l);font-size:.9rem;margin:0 0 8px}
+main{max-width:1080px;margin:0 auto;padding:24px 16px 56px}
+button,select,input{font:inherit;color:var(--ink)}
+button,select,input[type=number]{background:var(--card);border:2px solid var(--deep);border-radius:8px;padding:6px 12px;cursor:pointer}
+input[type=number]{width:60px;cursor:text}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--deep)}
+button:hover{background:var(--gold-l)}
+button.on{background:var(--deep);color:#fff}
+button.danger{border-color:#ff6b81;color:#ff6b81}
+button.big{background:var(--gold);border-color:var(--gold);font-weight:800;padding:11px 24px;font-size:1.05rem}
+button:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.lbl{color:var(--mut);font-size:.9rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:780px){.two{grid-template-columns:1fr}}
+.gc{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px}
+.gc.active{border-color:var(--deep);box-shadow:0 0 0 3px var(--gold)}
+.gc h2{margin:0 0 6px;font-size:1.1rem;color:var(--blue);display:flex;justify-content:space-between;gap:8px}
+.gc h2 span{font-weight:400;font-size:.82rem;color:var(--mut)}
+.mini{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.mini button,.mini select{padding:3px 8px;font-size:.85rem}
+canvas{width:100%;aspect-ratio:11/8;display:block;touch-action:none;cursor:crosshair;border-radius:8px;
+background-image:linear-gradient(#18293c 1px,transparent 1px),linear-gradient(90deg,#18293c 1px,transparent 1px);background-size:24px 24px}
+.sum{font-size:.9rem;color:var(--mut);margin:6px 2px 0}.sum b{color:var(--deep)}
+.panel{background:var(--card);border:2px solid var(--deep);border-radius:14px;padding:16px;margin-top:18px}
+.panel h2{margin:0 0 10px;font-size:1.1rem;color:var(--blue)}
+.verdict{padding:12px 16px;border-radius:10px;border-left:6px solid var(--line);background:var(--paper);margin-bottom:12px}
+.verdict.ok{border-color:var(--ok)}.verdict.no{border-color:var(--bad)}
+.verdict b{font-size:1.2rem}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600}
+.yes{color:var(--ok);font-weight:800}.no{color:var(--bad);font-weight:800}
+.map{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.map span{padding:3px 10px;border-radius:999px;font-weight:800;font-size:.9rem;color:#05070a}
+.nav2{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.learn{margin-top:18px;border-left:5px solid var(--gold);background:var(--card);padding:12px 16px;border-radius:0 12px 12px 0}
+.learn h2{margin:0 0 4px;font-size:1.05rem;color:var(--blue)}
+.learn p{margin:0 0 6px;color:var(--mut)}
+.next{display:flex;justify-content:space-between;margin-top:26px;gap:10px;flex-wrap:wrap}
+.next a{background:var(--gold);color:var(--deep);font-weight:800;text-decoration:none;padding:10px 20px;border-radius:999px}
+.next a.sec{background:transparent;border:2px solid var(--deep)}
+
+/* ---- slim top bar + left slide-out menu ---- */
+.bar{position:sticky;top:0;z-index:40;background:var(--deep);color:#fff;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.menu-btn{display:flex;align-items:center;gap:10px;background:transparent;color:#fff;border:2px solid var(--gold-l);border-radius:10px;padding:7px 14px;font:inherit;font-weight:700;cursor:pointer}
+.menu-btn:hover{background:rgba(255,255,255,.12)}
+.burger,.burger::before,.burger::after{display:block;width:18px;height:2px;background:currentColor;border-radius:2px;content:"";position:relative}
+.burger::before{position:absolute;top:-6px}.burger::after{position:absolute;top:6px}
+.bar-brand{text-decoration:none;color:#fff;font-weight:800;line-height:1.15}
+.bar-brand small{display:block;font-weight:400;color:var(--gold-l);font-size:.72rem}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50}
+.drawer{position:fixed;top:0;bottom:0;left:0;width:min(310px,86vw);background:var(--deep);color:#fff;z-index:60;padding:18px 0 24px;overflow:auto;
+transform:translateX(-102%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s;box-shadow:6px 0 24px rgba(0,0,0,.3)}
+body.menu-open .drawer{transform:none;visibility:visible;transition:transform .25s ease,visibility 0s}
+@media(prefers-reduced-motion:reduce){.drawer,body.menu-open .drawer{transition:none}}
+.dr-head{display:flex;justify-content:space-between;align-items:center;padding:0 18px 12px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
+.dr-head b{font-size:1.15rem}.dr-head small{display:block;font-weight:400;color:var(--gold-l);font-size:.75rem}
+.dr-head button{background:transparent;border:2px solid var(--gold-l);color:#fff;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+.drawer h2{margin:16px 18px 4px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-l);font-weight:600}
+.drawer a{display:block;color:#fff;text-decoration:none;padding:10px 18px 10px 22px;border-left:4px solid transparent;font-size:1.02rem}
+.drawer a:hover{background:rgba(255,255,255,.1);border-left-color:var(--gold-l)}
+.drawer a.here{border-left-color:var(--gold);background:rgba(56,189,248,.2);font-weight:800}
+.drawer :focus-visible,.menu-btn:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+body.menu-open{overflow:hidden}
+
+.setup h2{margin:0 0 6px;font-size:1.2rem;color:var(--blue)}
+.card{background:var(--card);border:2px solid var(--deep);border-radius:14px;padding:18px}
+.hide{display:none!important}
+.prow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0;padding:8px 10px;border:2px solid var(--line);border-radius:12px}
+.prow .dot{width:30px;height:30px;font-size:.95rem}
+.prow input[type=text]{flex:1;min-width:120px;border:2px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit;background:var(--card)}
+.sws{display:flex;gap:5px;flex-wrap:wrap}
+.sws button{width:30px;height:30px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--line);padding:0;cursor:pointer}
+.sws button.on{box-shadow:0 0 0 3px var(--deep)}
+.opts{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.opts label{display:flex;gap:6px;align-items:center;color:var(--mut);font-size:.95rem}
+.opts select{border:2px solid var(--deep);border-radius:8px;padding:6px 10px;font:inherit;background:var(--card)}
+.dot{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;color:#fff;font-weight:800;font-size:.8rem;flex:none}
+.arena{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr);gap:16px;align-items:start}
+@media(max-width:860px){.arena{grid-template-columns:1fr}}
+.boardbox{background:var(--card);border:2px solid var(--deep);border-radius:14px;padding:8px}
+#cv{width:100%;aspect-ratio:640/460;display:block;touch-action:manipulation;cursor:pointer;border-radius:8px;
+background-image:linear-gradient(#18293c 1px,transparent 1px),linear-gradient(90deg,#18293c 1px,transparent 1px);background-size:24px 24px}
+.banner{font-weight:800;font-size:1.05rem;margin:0 0 4px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sub2{color:var(--mut);font-size:.93rem;margin:0 0 10px}
+.pl{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:8px;background:var(--card)}
+.pl.cur{border-color:var(--deep);box-shadow:0 0 0 3px var(--gold)}
+.pl.out{opacity:.55}
+.pl .dot{width:32px;height:32px;font-size:1rem}
+.pl .nm{font-weight:800;line-height:1.15}.pl .st{font-size:.85rem;color:var(--mut)}
+.pl .big{margin-left:auto;text-align:right;font-size:.8rem;color:var(--mut)}
+.pl .big b{display:block;font-size:1.5rem;color:var(--deep);line-height:1}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+button.b{cursor:pointer;border:2px solid var(--deep);border-radius:10px;background:var(--card);padding:7px 14px;font:inherit;font-weight:600}
+button.b:hover{background:var(--gold-l)}
+button.go{background:var(--gold);border-color:var(--gold);font-weight:800}
+#log{max-height:150px;overflow:auto;font-size:.9rem;border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}
+#log div{padding:2px 0}#log div:first-child{font-weight:600}
+.end h2{margin:0 0 4px;font-size:1.4rem;color:var(--deep)}
+.end table{border-collapse:collapse;width:100%;font-size:.93rem;margin:8px 0}
+.end td,.end th{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left}
+.end th{color:var(--mut);font-weight:600}
+.titles{display:grid;gap:6px;margin:8px 0}
+.titles div{border-left:6px solid var(--gold);background:var(--paper);padding:6px 12px;border-radius:0 10px 10px 0}
+.how{margin-top:18px;border-left:5px solid var(--gold);background:var(--card);padding:12px 16px;border-radius:0 12px 12px 0}
+.how h2{margin:0 0 4px;font-size:1.05rem;color:var(--blue)}
+.how ul{margin:0;padding-left:20px;color:var(--mut)}.how li{margin-bottom:3px}
+.next{display:flex;justify-content:space-between;margin-top:26px;gap:10px;flex-wrap:wrap}
+.next a{background:var(--gold);color:var(--deep);font-weight:800;text-decoration:none;padding:10px 20px;border-radius:999px}
+.next a.sec{background:transparent;border:2px solid var(--deep)}
+
+/* ===== Black + sky blue theme ===== */
+html{color-scheme:dark}
+input,select,progress{accent-color:var(--sky)}
+body{background-color:var(--paper);background-image:linear-gradient(rgba(56,189,248,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.055) 1px,transparent 1px);background-size:34px 34px;color:var(--ink)}
+.bar{background:var(--black);border-bottom:2px solid var(--sky)}
+.bar-brand{color:#fff}.bar-brand small{color:var(--sky-l)}
+.menu-btn{border-color:var(--sky);color:var(--sky-l)}.menu-btn:hover{background:rgba(56,189,248,.16)}
+.scrim{background:rgba(0,0,0,.72)}
+.drawer{background:#070b11;border-right:2px solid var(--sky);box-shadow:8px 0 30px rgba(0,0,0,.6)}
+.dr-head{border-bottom-color:rgba(56,189,248,.35)}.dr-head small{color:var(--sky-l)}
+.dr-head button{border-color:var(--sky);color:var(--sky-l)}
+.drawer h2:nth-of-type(1){color:var(--sky-l)}.drawer h2:nth-of-type(2){color:var(--lime)}.drawer h2:nth-of-type(3){color:var(--gold)}
+.drawer a:hover{background:rgba(56,189,248,.14);border-left-color:var(--sky)}
+.drawer a.here{background:rgba(56,189,248,.2);border-left-color:var(--gold)}
+.head{background:radial-gradient(900px 320px at 92% -70%,rgba(56,189,248,.5),transparent 70%),radial-gradient(500px 200px at 0% 120%,rgba(255,93,158,.2),transparent 70%),linear-gradient(180deg,#04070b,#0a1119);color:#fff;border-bottom:3px solid var(--sky)}
+.head h1{color:#fff}.head p{color:#b9d6ec}.head .crumb{color:var(--gold)}
+button:hover,button.b:hover{background:rgba(56,189,248,.16)}
+.btn,button.go,button.big,button.b.go,.next a{background:var(--gold);border-color:var(--gold);color:#05070a}
+.btn:hover,button.go:hover,button.big:hover,button.b.go:hover,.next a:hover{background:#ff86b8;border-color:#ff86b8;color:#05070a}
+.btn.sec,.btn.alt,.next a.sec{background:transparent;border:2px solid var(--sky);color:var(--ink)}
+.btn.sec:hover,.btn.alt:hover,.next a.sec:hover{background:rgba(56,189,248,.16);border-color:var(--sky);color:var(--ink)}
+.btn.ghost{background:transparent;color:#fff;border:2px solid var(--sky)}.btn.ghost:hover{background:rgba(56,189,248,.16)}
+button.on,.chip.on{background:var(--sky);color:#05070a;border-color:var(--sky)}button.on:hover{background:var(--sky-l)}
+button:disabled:hover{background:inherit}
+.tag{background:var(--sky);color:#05070a}
+.dot,.tk{color:#05070a}
+.opt.sel{background:rgba(56,189,248,.18)}.opt.sel b{background:var(--sky);color:#05070a;border-color:var(--sky)}
+.pc.pick{color:#05070a}
+.lvl.hit,.lvl.hit b{color:#05070a}
+.hero{background:radial-gradient(1100px 620px at 82% 8%,rgba(56,189,248,.3),transparent 62%),radial-gradient(760px 520px at 4% 100%,rgba(255,93,158,.2),transparent 62%),#04060a}
+.hero h1 span{background:linear-gradient(90deg,var(--sky),#c084fc 55%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.toc a:hover{background:rgba(56,189,248,.12);color:var(--ink)}
+.toc li{border-top-color:rgba(56,189,248,.45)}.toc li:last-child{border-bottom-color:rgba(56,189,248,.45)}
+.toc li:nth-child(8n+1) a::before,.toc li:nth-child(8n+1) .go{color:var(--sky)}
+.toc li:nth-child(8n+2) a::before,.toc li:nth-child(8n+2) .go{color:var(--gold)}
+.toc li:nth-child(8n+3) a::before,.toc li:nth-child(8n+3) .go{color:var(--lime)}
+.toc li:nth-child(8n+4) a::before,.toc li:nth-child(8n+4) .go{color:var(--amber)}
+.toc li:nth-child(8n+5) a::before,.toc li:nth-child(8n+5) .go{color:var(--violet)}
+.toc li:nth-child(8n+6) a::before,.toc li:nth-child(8n+6) .go{color:var(--orange)}
+.toc li:nth-child(8n+7) a::before,.toc li:nth-child(8n+7) .go{color:var(--sky-l)}
+.toc li:nth-child(8n+8) a::before,.toc li:nth-child(8n+8) .go{color:var(--lime)}
+.def:nth-child(1){border-left-color:var(--sky)}.def:nth-child(1) h3{color:var(--sky-l)}
+.def:nth-child(2){border-left-color:var(--gold)}.def:nth-child(2) h3{color:#ff9cc7}
+.def:nth-child(3){border-left-color:var(--lime)}.def:nth-child(3) h3{color:var(--lime)}
+.num:nth-child(4n+1){border-left-color:var(--sky)}.num:nth-child(4n+2){border-left-color:var(--gold)}.num:nth-child(4n+3){border-left-color:var(--lime)}.num:nth-child(4n+4){border-left-color:var(--amber)}
+footer{background:var(--black);border-top:2px solid var(--sky);color:#9db4c8}footer b{color:var(--sky-l)}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="drawer"><span class="burger"></span>Menu</button>
+  <a class="bar-brand" href="index.html">Graph Theory<small>Wits School of Education</small></a>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<nav class="drawer" id="drawer" aria-label="Main" aria-hidden="true">
+  <div class="dr-head"><div><b>Graph Theory</b><small>Wits School of Education</small></div><button id="menuClose" aria-label="Close menu">✕</button></div>
+  <h2>Start</h2>
+  <a href="index.html">Home</a>
+  <a href="index.html#contents">Table of contents</a>
+  <h2>Learn</h2>
+  <a href="playground.html">Playground</a>
+  <a href="navigate.html">Navigating Graphs</a>
+  <a href="subgraph.html">Subgraphs</a>
+  <a href="isomorphism.html">Isomorphism</a>
+  <a href="pascal.html">Pascal's Triangle</a>
+  <a href="complement.html">Complement</a>
+  <h2>Practise &amp; play</h2>
+  <a href="quiz.html">Test yourself</a>
+  <a href="game.html" class="here" aria-current="page">Bonus game</a>
+</nav>
+
+<header class="head"><div>
+  <p class="crumb">Bonus game</p>
+  <h1>Colour Escape</h1>
+  <p>Two to four players, one graph. Pick a colour, pick a starting vertex, then walk across the graph painting as you go. Your colour may never touch itself. Run out of moves and you are trapped.</p>
+</div></header>
+
+<main>
+  <div class="card setup" id="setup">
+    <h2>Set up the game</h2>
+    <div class="opts"><label>Players <select id="npSel"><option>2</option><option>3</option><option selected>4</option></select></label>
+      <label>Board <select id="boardSel"><option value="grid">Grid 5 × 4</option><option value="tri">Triangle grid 5 × 4</option><option value="wheel">Wheel (12 vertices)</option><option value="pet">Petersen graph</option><option value="web">Random web (18 vertices)</option><option value="mine">My copied graph (from the Playground)</option></select></label>
+      <label>Walking range <select id="rangeSel"><option value="2">Up to 2 steps</option><option value="3" selected>Up to 3 steps</option><option value="99">Any distance</option></select></label></div>
+    <p class="sub2" id="boardMsg"></p>
+    <div id="prows"></div>
+    <div class="ctl"><button class="b go" id="start">Start the game</button></div>
+  </div>
+
+  <div id="play" class="hide">
+    <div class="arena">
+      <div class="boardbox"><canvas id="cv" aria-label="The game graph"></canvas>
+        <label class="sub2" style="display:flex;gap:6px;align-items:center;margin:6px 2px 0"><input type="checkbox" id="trails" checked> Show the walks each player has taken</label></div>
+      <div>
+        <div class="card">
+          <div class="banner" id="banner"></div><p class="sub2" id="hint"></p>
+          <div id="plist"></div>
+          <div class="ctl"><button class="b" id="auto">Auto-finish</button><button class="b" id="again">New game</button></div>
+          <div id="log" aria-live="polite"></div>
+        </div>
+        <div class="card end hide" id="endbox" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="how">
+    <h2>How to play</h2>
+    <ul>
+      <li><b>Start:</b> each player picks a colour, then takes turns tapping a free vertex to start on. That vertex is painted.</li>
+      <li><b>Your turn:</b> your token walks along edges, passing only through unpainted vertices, and lands on a glowing vertex. That vertex is painted your colour.</li>
+      <li><b>The colouring rule:</b> no two joined vertices may share a colour. So you can never land next to a vertex of your own colour. Other colours can sit next to yours.</li>
+      <li><b>Trapped:</b> when no glowing vertex is left for you, you are out. The first player trapped is the <b>loser</b>.</li>
+      <li><b>Winning:</b> the game ends when everyone is trapped. The player who painted the most vertices dominated the graph and <b>wins</b>.</li>
+      <li><b>Think graph theory:</b> your colour must form a set of vertices with no edges between them. Use walls of other colours to trap your rivals, and keep your own escape routes open.</li>
+    </ul>
+  </div>
+
+  <div class="next"><a class="sec" href="quiz.html">← Test yourself</a><a href="index.html#contents">Back to contents</a></div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const R=n=>Math.floor(Math.random()*n);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const PAL=['#ff5d6c','#22d3ee','#a78bfa','#4ade80','#fb923c','#60a5fa','#f472b6','#d6a15a'];
+const CN=['Red','Teal','Purple','Green','Orange','Blue','Pink','Brown'];
+const CW=640,CH=460,VR=17;
+const txt=c=>{const n=parseInt(c.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return(0.299*r+0.587*g+0.114*b)>150?'#05070a':'#fff'};
+let np=4,pcol=[0,1,2,3],G=null,col=[],tok=[],P=[],phase='setup',turn=0,pickI=0,round=1,range=3,walks=[],cand=new Map(),hover=-1,busy=false,elimLog=[],logs=[],moveNo=0,planarBoard=false,boardName='';
+
+/* ---------- boards ---------- */
+function gridBoard(tri){const cols=5,rows=4,pos=[],edges=[],gx=(CW-120)/(cols-1),gy=(CH-120)/(rows-1);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)pos.push([60+c*gx,60+r*gy]);
+  const id=(r,c)=>r*cols+c;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){if(c+1<cols)edges.push([id(r,c),id(r,c+1)]);if(r+1<rows)edges.push([id(r,c),id(r+1,c)]);if(tri&&r+1<rows&&c+1<cols)edges.push([id(r,c),id(r+1,c+1)])}
+  return{pos,edges,planar:true}}
+function wheelBoard(){const n=11,pos=[[CW/2,CH/2]],edges=[];
+  for(let i=0;i<n;i++){const a=2*Math.PI*i/n-Math.PI/2;pos.push([CW/2+(CW/2-70)*Math.cos(a)*.72+0,CH/2+(CH/2-55)*Math.sin(a)])}
+  for(let i=0;i<n;i++){edges.push([0,i+1]);edges.push([i+1,(i+1)%n+1])}return{pos,edges,planar:true}}
+function petBoard(){const pos=[],edges=[],cx=CW/2,cy=CH/2;
+  for(let i=0;i<5;i++){const a=2*Math.PI*i/5-Math.PI/2;pos.push([cx+(CW/2-90)*0.62*Math.cos(a)*1.25,cy+(CH/2-45)*Math.sin(a)])}
+  for(let i=0;i<5;i++){const a=2*Math.PI*i/5-Math.PI/2;pos.push([cx+110*Math.cos(a),cy+80*Math.sin(a)])}
+  for(let i=0;i<5;i++){edges.push([i,(i+1)%5]);edges.push([i,i+5]);edges.push([i+5,(i+2)%5+5])}return{pos,edges,planar:false}}
+function webBoard(){const n=18,pos=[];let tries=0;
+  while(pos.length<n&&tries++<4000){const p=[50+Math.random()*(CW-100),50+Math.random()*(CH-100)];if(pos.every(q=>Math.hypot(q[0]-p[0],q[1]-p[1])>85))pos.push(p)}
+  const key=(a,b)=>a<b?a+'-'+b:b+'-'+a,es=new Set();
+  pos.forEach((p,i)=>{pos.map((q,j)=>[j,Math.hypot(p[0]-q[0],p[1]-q[1])]).filter(x=>x[0]!==i).sort((a,b)=>a[1]-b[1]).slice(0,3).forEach(x=>es.add(key(i,x[0])))});
+  const par=pos.map((_,i)=>i),f=x=>par[x]===x?x:(par[x]=f(par[x]));es.forEach(k=>{const[a,b]=k.split('-').map(Number);par[f(a)]=f(b)});
+  for(;;){const comps=[...new Set(pos.map((_,i)=>f(i)))];if(comps.length<2)break;let best=null;
+    for(let i=0;i<pos.length;i++)for(let j=i+1;j<pos.length;j++)if(f(i)!==f(j)){const d=Math.hypot(pos[i][0]-pos[j][0],pos[i][1]-pos[j][1]);if(!best||d<best[2])best=[i,j,d]}
+    es.add(key(best[0],best[1]));par[f(best[0])]=f(best[1])}
+  return{pos,edges:[...es].map(k=>k.split('-').map(Number)),planar:false}}
+function mineBoard(){let t=null;try{t=localStorage.getItem('gt-copied-graph')}catch(e){}
+  try{if(!t||t.slice(0,4)!=='GT1:')return null;const d=JSON.parse(t.slice(4));const v=d.v.filter(a=>Array.isArray(a)&&a.length===3);if(v.length<4||v.length>40)return null;
+    const ix={};v.forEach((a,i)=>ix[a[0]]=i);const pos=v.map(a=>[Math.max(40,Math.min(CW-40,a[1]*CW/440)),Math.max(40,Math.min(CH-40,a[2]*CH/320))]);
+    const edges=d.e.map(k=>k.split('-').map(Number)).filter(e=>e[0] in ix&&e[1] in ix).map(e=>[ix[e[0]],ix[e[1]]]);return{pos,edges,planar:false,labels:v.map(a=>a[0])}}catch(e){return null}}
+const BOARDS={grid:()=>({...gridBoard(false),name:'Grid 5 × 4'}),tri:()=>({...gridBoard(true),name:'Triangle grid 5 × 4'}),wheel:()=>({...wheelBoard(),name:'Wheel'}),pet:()=>({...petBoard(),name:'Petersen graph'}),web:()=>({...webBoard(),name:'Random web'}),mine:()=>{const b=mineBoard();return b&&{...b,name:'Your copied graph'}}};
+function makeGraph(b){G={n:b.pos.length,pos:b.pos,adj:b.pos.map(()=>[]),edges:b.edges,labels:b.labels||b.pos.map((_,i)=>i+1)};
+  b.edges.forEach(([a,c])=>{if(!G.adj[a].includes(c)){G.adj[a].push(c);G.adj[c].push(a)}});planarBoard=!!b.planar;boardName=b.name}
+
+/* ---------- setup screen ---------- */
+function setupRows(){
+  np=+$('npSel').value;const names=[...document.querySelectorAll('#prows input')].map(i=>i.value);
+  $('prows').innerHTML=Array.from({length:np},(_,i)=>`<div class="prow"><span class="dot" id="pd${i}" style="background:${PAL[pcol[i]]}">${i+1}</span>
+   <input type="text" id="pn${i}" maxlength="14" placeholder="Player ${i+1}" value="${(names[i]||'').replace(/"/g,'')}" aria-label="Player ${i+1} name">
+   <div class="sws" role="group" aria-label="Colour for player ${i+1}">${PAL.map((c,k)=>`<button style="background:${c}" class="${pcol[i]===k?'on':''}" data-p="${i}" data-c="${k}" title="${CN[k]}" aria-label="${CN[k]}"></button>`).join('')}</div></div>`).join('')}
+$('prows').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;const i=+b.dataset.p,k=+b.dataset.c;
+  const j=pcol.slice(0,np).findIndex((c,x)=>c===k&&x!==i);if(j>=0)pcol[j]=pcol[i];pcol[i]=k;setupRows()};
+$('npSel').onchange=setupRows;
+$('boardSel').onchange=()=>{$('boardMsg').textContent=$('boardSel').value==='mine'&&!BOARDS.mine()?'No copied graph found yet. Press Copy graph in the Playground first, then come back.':''};
+
+/* ---------- the rules ---------- */
+function options(p){
+  const res=new Map();if(P[p].out||tok[p]<0)return res;
+  const start=tok[p],dist=new Map([[start,0]]),prev=new Map(),q=[start];
+  while(q.length){const u=q.shift(),d=dist.get(u);if(d>=range)continue;
+    for(const w of G.adj[u]){if(dist.has(w)||col[w]>=0)continue;dist.set(w,d+1);prev.set(w,u);q.push(w)}}
+  dist.forEach((d,v)=>{if(v===start)return;if(G.adj[v].some(w=>col[w]===p))return;
+    const path=[v];let c=v;while(prev.has(c)){c=prev.get(c);path.unshift(c)}res.set(v,path)});
+  return res}
+const active=()=>P.map((p,i)=>i).filter(i=>!P[i].out);
+const log=m=>{logs.unshift(m);if(logs.length>40)logs.pop()};
+const vn=v=>G.labels[v];
+function startGame(){
+  const b=BOARDS[$('boardSel').value]();if(!b){$('boardMsg').textContent='No copied graph found yet. Press Copy graph in the Playground first, then come back.';return}
+  makeGraph(b);range=+$('rangeSel').value;np=+$('npSel').value;
+  P=Array.from({length:np},(_,i)=>({name:(($('pn'+i).value||'').trim()||'Player '+(i+1)),c:pcol[i],out:false,count:0,outAt:null}));
+  col=Array(G.n).fill(-1);tok=Array(np).fill(-1);walks=[];elimLog=[];logs=[];moveNo=0;round=1;pickI=0;turn=0;busy=false;cand=new Map();hover=-1;
+  phase='pick';$('setup').classList.add('hide');$('play').classList.remove('hide');$('endbox').classList.add('hide');
+  log(`Board: ${boardName}. ${np} players. Each player now taps a free vertex to start on.`);render()}
+function pickStart(v){
+  if(phase!=='pick'||col[v]>=0)return;const p=pickI;col[v]=p;tok[p]=v;P[p].count++;pickI++;log(`${P[p].name} starts on vertex ${vn(v)}.`);
+  if(pickI>=np){phase='play';turn=0;log('All players are on the board. Walk and paint!');afterMove(-1)}else render()}
+async function doMove(v){
+  if(phase!=='play'||busy||!cand.has(v))return;busy=true;const p=turn,path=cand.get(v);
+  log(`${P[p].name} walks ${path.map(vn).join(' → ')} and paints vertex ${vn(v)}.`);
+  if(!window.FAST){const steps=path.length-1;for(let s=1;s<=steps;s++){moveProg={p,path,s};render();await wait(170)}moveProg=null}
+  col[v]=p;tok[p]=v;P[p].count++;walks.push({p,path});moveNo++;busy=false;afterMove(p)}
+let moveProg=null;
+function afterMove(p){
+  // anybody with no options left is trapped right away
+  const trapped=[];active().forEach(i=>{if(options(i).size===0){P[i].out=true;P[i].outAt=moveNo;trapped.push(i)}});
+  if(trapped.length){trapped.forEach(i=>log(`💀 ${P[i].name} has no moves left and is trapped!`));
+    elimLog.push(trapped.slice().sort((a,b)=>P[a].count-P[b].count||b-a)[0])}
+  if(!active().length){endGame();return}
+  // next active player
+  let t=p<0?-1:p;if(p<0){t=-1}
+  let n=t;do{n=(n+1)%np}while(P[n].out);
+  if(p>=0&&n<=p)round++;turn=n;render()}
+function endGame(){phase='over';cand=new Map();
+  const order=[...P.keys()].sort((a,b)=>P[b].count-P[a].count||(P[b].outAt??0)-(P[a].outAt??0));
+  log('Game over!');render()}
+
+/* ---------- drawing ---------- */
+function draw(){
+  const c=$('cv'),x=c.getContext('2d'),r=window.devicePixelRatio||1;c.width=CW*r;c.height=CH*r;x.setTransform(r,0,0,r,0,0);x.clearRect(0,0,CW,CH);
+  x.lineCap='round';x.lineJoin='round';
+  G.edges.forEach(([a,b])=>{x.strokeStyle='#3f7fa6';x.lineWidth=3;x.beginPath();x.moveTo(...G.pos[a]);x.lineTo(...G.pos[b]);x.stroke()});
+  if($('trails').checked)walks.forEach(w=>{x.strokeStyle=PAL[P[w.p].c];x.globalAlpha=.45;x.lineWidth=7;x.setLineDash([2,10]);x.beginPath();w.path.forEach((v,i)=>i?x.lineTo(...G.pos[v]):x.moveTo(...G.pos[v]));x.stroke();x.setLineDash([]);x.globalAlpha=1});
+  if(moveProg){const{p,path,s}=moveProg;x.strokeStyle=PAL[P[p].c];x.lineWidth=8;x.beginPath();path.slice(0,s+1).forEach((v,i)=>i?x.lineTo(...G.pos[v]):x.moveTo(...G.pos[v]));x.stroke()}
+  if(phase==='play'&&!busy&&cand.size){const p=turn,pc=PAL[P[p].c];
+    if(hover>=0&&cand.has(hover)){x.strokeStyle=pc;x.globalAlpha=.7;x.lineWidth=8;x.beginPath();cand.get(hover).forEach((v,i)=>i?x.lineTo(...G.pos[v]):x.moveTo(...G.pos[v]));x.stroke();x.globalAlpha=1}
+    cand.forEach((_,v)=>{x.beginPath();x.arc(...G.pos[v],VR+7+(v===hover?3:0),0,7);x.strokeStyle=pc;x.lineWidth=4;x.setLineDash([5,5]);x.stroke();x.setLineDash([])})}
+  x.font='800 13px "Bricolage Grotesque",sans-serif';x.textAlign='center';x.textBaseline='middle';
+  G.pos.forEach((p,v)=>{const owner=col[v],fill=owner>=0?PAL[P[owner].c]:'#0d141d';
+    x.beginPath();x.arc(p[0],p[1],VR,0,7);x.fillStyle=fill;x.fill();x.lineWidth=2.5;x.strokeStyle='#e8f3fb';x.stroke();
+    x.fillStyle=owner>=0?txt(fill):'#e8f3fb';x.fillText(vn(v),p[0],p[1]+1);
+    if(owner>=0){x.beginPath();x.arc(p[0]+13,p[1]+13,8,0,7);x.fillStyle='#fff';x.fill();x.lineWidth=1.5;x.strokeStyle='#e8f3fb';x.stroke();x.font='800 10px "Bricolage Grotesque",sans-serif';x.fillStyle='#05070a';x.fillText(owner+1,p[0]+13,p[1]+14);x.font='800 13px "Bricolage Grotesque",sans-serif'}});
+  P.forEach((q,i)=>{const v=moveProg&&moveProg.p===i?moveProg.path[moveProg.s]:tok[i];if(v<0)return;const[px,py]=G.pos[v];
+    x.beginPath();x.arc(px,py,VR+4,0,7);x.lineWidth=4;x.strokeStyle=q.out?'#777':'#fbbf24';x.stroke();x.beginPath();x.arc(px,py,VR+1,0,7);x.lineWidth=2;x.strokeStyle='#05070a';x.stroke();
+    if(q.out){x.strokeStyle='#ff6b81';x.lineWidth=4;x.beginPath();x.moveTo(px-8,py-8);x.lineTo(px+8,py+8);x.moveTo(px+8,py-8);x.lineTo(px-8,py+8);x.stroke()}})}
+
+function render(){
+  if(!G)return;
+  cand=(phase==='play'&&!busy)?options(turn):new Map();
+  const cur=P[turn];
+  if(phase==='pick'){const p=P[pickI];$('banner').innerHTML=`<span class="dot" style="background:${PAL[p.c]}">${pickI+1}</span> ${p.name}: choose your starting vertex`;$('hint').textContent='Tap any free vertex. It will be painted '+CN[p.c].toLowerCase()+' and your token starts there.'}
+  else if(phase==='play'){$('banner').innerHTML=`<span class="dot" style="background:${PAL[cur.c]}">${turn+1}</span> ${cur.name}'s turn <span class="sub2" style="margin:0">Round ${round}</span>`;
+    $('hint').textContent=busy?'Walking…':`Tap a glowing vertex (${cand.size} option${cand.size===1?'':'s'}). Walk up to ${range>50?'any number of':range} steps through free vertices. You cannot land next to your own colour.`}
+  else{$('banner').textContent='Game over';$('hint').textContent='Everyone is trapped. See the results below.'}
+  $('plist').innerHTML=P.map((q,i)=>{const o=q.out?0:(phase==='play'&&i===turn&&cand?cand.size:options(i).size),st=q.out?'Trapped 💀':phase==='pick'?(tok[i]>=0?'Started':'Waiting to start'):`${o} option${o===1?'':'s'} left`;
+    return`<div class="pl${i===turn&&phase==='play'?' cur':''}${q.out?' out':''}"><span class="dot" style="background:${PAL[q.c]}">${i+1}</span><div><div class="nm">${q.name}</div><div class="st">${CN[q.c]} · ${st}</div></div><div class="big"><b>${q.count}</b>vertices</div></div>`}).join('');
+  $('log').innerHTML=logs.slice(0,10).map(l=>`<div>${l}</div>`).join('');
+  $('auto').classList.toggle('hide',!(phase==='play'&&active().length===1));
+  if(phase==='over')showEnd();
+  draw()}
+function showEnd(){
+  const rank=[...P.keys()].sort((a,b)=>P[b].count-P[a].count||(P[b].outAt??0)-(P[a].outAt??0));
+  const top=rank.filter(i=>P[i].count===P[rank[0]].count&&(P[i].outAt??0)===(P[rank[0]].outAt??0));
+  const loser=elimLog[0],unpainted=col.filter(c=>c<0).length;
+  let proper=true;G.edges.forEach(([a,b])=>{if(col[a]>=0&&col[a]===col[b])proper=false});
+  const note=planarBoard?` This board is planar, so the Four Colour Theorem says 4 colours could have painted every vertex. Playing against each other left ${unpainted} unpainted.`:'';
+  $('endbox').classList.remove('hide');
+  $('endbox').innerHTML=`<h2>${top.length>1?'🤝 Shared domination!':'🏆 '+P[rank[0]].name+' dominated the graph!'}</h2>
+   <div class="titles"><div>🏆 <b>Dominated the graph:</b> ${top.map(i=>P[i].name).join(' and ')} with ${P[rank[0]].count} of ${G.n} vertices</div>
+   <div>💀 <b>Trapped first (the loser):</b> ${loser!==undefined?P[loser].name:'nobody'}</div></div>
+   <table><tr><th>#</th><th>Player</th><th>Vertices</th><th>Trapped after move</th></tr>${rank.map((i,k)=>`<tr><td>${k+1}</td><td><span class="dot" style="background:${PAL[P[i].c]}">${i+1}</span> ${P[i].name}</td><td>${P[i].count}</td><td>${P[i].outAt}</td></tr>`).join('')}</table>
+   <p class="sub2">Unpainted vertices nobody could reach: ${unpainted}. No two joined vertices share a colour: ${proper?'✓ true':'✗ false'}.${note}</p>
+   <div class="ctl"><button class="b go" id="again2">Play again</button></div>`;
+  $('again2').onclick=toSetup}
+function toSetup(){phase='setup';$('play').classList.add('hide');$('setup').classList.remove('hide');window.scrollTo({top:0})}
+
+/* ---------- input ---------- */
+const at=e=>{const c=$('cv'),r=c.getBoundingClientRect(),x=(e.clientX-r.left)*CW/r.width,y=(e.clientY-r.top)*CH/r.height;let b=-1,bd=30;G.pos.forEach((p,v)=>{const d=Math.hypot(p[0]-x,p[1]-y);if(d<bd){bd=d;b=v}});return b};
+$('cv').addEventListener('pointermove',e=>{if(!G||phase!=='play'||busy)return;const v=at(e);if(v!==hover){hover=v;draw()}});
+$('cv').addEventListener('pointerleave',()=>{hover=-1;if(G)draw()});
+$('cv').addEventListener('pointerdown',e=>{if(!G)return;const v=at(e);if(v<0)return;if(phase==='pick')pickStart(v);else if(phase==='play')doMove(v)});
+$('trails').onchange=()=>G&&draw();
+$('start').onclick=startGame;$('again').onclick=()=>{if(phase==='over'||confirm('Stop this game and set up a new one?'))toSetup()};
+$('auto').onclick=async()=>{while(phase==='play'&&active().length===1&&!busy){const c=[...options(turn).keys()];await doMove(c[R(c.length)]);await wait(150)}};
+setupRows();$('boardSel').onchange();
+</script>
+<script>
+(function(){const b=document.body,btn=document.getElementById('menuBtn'),dr=document.getElementById('drawer'),sc=document.getElementById('scrim');
+function set(o,f){b.classList.toggle('menu-open',o);btn.setAttribute('aria-expanded',o);dr.setAttribute('aria-hidden',!o);sc.hidden=!o;
+  if(f!==false){if(o){const a=dr.querySelector('a.here')||dr.querySelector('a');a&&a.focus()}else btn.focus()}}
+btn.onclick=()=>set(!b.classList.contains('menu-open'));
+document.getElementById('menuClose').onclick=()=>set(false);sc.onclick=()=>set(false);
+dr.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false,false)));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&b.classList.contains('menu-open'))set(false)});})();
+</script>
+</body>
+</html>

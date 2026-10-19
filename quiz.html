@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Yourself | Graph Theory</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--sky:#38bdf8;--sky-l:#7dd3fc;--black:#04060a;--lime:#a3e635;--amber:#fbbf24;--violet:#a78bfa;--orange:#fb923c;--blue:#7dd3fc;--deep:#38bdf8;--gold:#ff5d9e;--gold-l:#ffb0d0;--paper:#070a0f;--card:#0d141d;--card2:#131d29;--ink:#e8f3fb;--mut:#9db4c8;--line:#25374c;--ok:#4ade80;--bad:#ff6b81}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.55 'Bricolage Grotesque',system-ui,sans-serif;color:var(--ink);background:var(--paper)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+nav.top{background:var(--deep);color:#fff;display:flex;flex-wrap:wrap;gap:4px 22px;align-items:center;padding:12px 24px}
+nav.top .brand{font-weight:800;margin-right:auto}
+nav.top .brand small{display:block;font-weight:400;color:var(--gold-l);font-size:.72rem}
+nav.top a{text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
+nav.top a:hover,nav.top a.here{border-color:var(--gold)}
+.head{background:var(--blue);color:#fff;padding:36px 24px}
+.head div{max-width:860px;margin:0 auto}
+.head h1{margin:0;font-size:clamp(2rem,6vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1}
+.head p{margin:8px 0 0;color:#b9d6ec;max-width:60ch}
+.head .crumb{color:var(--gold-l);font-size:.9rem;margin:0 0 8px}
+main{max-width:860px;margin:0 auto;padding:24px 16px 56px}
+button{font:inherit;color:var(--ink);cursor:pointer}
+.btn{background:var(--gold);border:2px solid var(--gold);color:var(--deep);font-weight:800;padding:11px 26px;border-radius:999px}
+.btn:hover{background:var(--gold-l)}
+.btn.sec{background:transparent;border-color:var(--deep)}
+.card{background:var(--card);border:2px solid var(--deep);border-radius:14px;padding:20px}
+.hide{display:none}
+.pbar{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 16px}
+.pbar i{display:block;height:100%;background:var(--gold);width:0;transition:width .3s}
+.meta{display:flex;justify-content:space-between;color:var(--mut);font-size:.92rem}
+.tag{background:var(--blue);color:#fff;border-radius:99px;padding:1px 12px;font-size:.82rem}
+h2.q{font-size:1.3rem;margin:10px 0 12px;color:var(--deep);line-height:1.35}
+.gfx{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.gfx figure{margin:0;border:2px solid var(--line);border-radius:10px;padding:4px;background:var(--card)
+}
+.gfx figcaption{text-align:center;font-size:.85rem;color:var(--mut)}
+.gfx canvas{display:block;width:260px;max-width:100%;aspect-ratio:13/10;
+background-image:linear-gradient(#18293c 1px,transparent 1px),linear-gradient(90deg,#18293c 1px,transparent 1px);background-size:20px 20px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:10px 14px;display:flex;gap:12px;align-items:center}
+.opt:hover:not(:disabled){border-color:var(--deep);background:var(--paper)}
+.opt b{width:28px;height:28px;border-radius:50%;background:var(--paper);border:2px solid var(--line);display:grid;place-items:center;font-size:.85rem;flex:none}
+.opt.right{border-color:var(--ok);background:rgba(74,222,128,.14)}
+.opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.14)}
+.opt:disabled{cursor:default}
+.opt:disabled:not(.right):not(.wrong){opacity:.55}
+.fb{margin-top:14px;padding:12px 16px;border-left:6px solid var(--ok);background:var(--paper);border-radius:0 10px 10px 0}
+.fb.no{border-color:var(--bad)}
+.fb b{display:block;font-size:1.05rem}
+.big{font-size:clamp(3rem,10vw,5rem);font-weight:800;line-height:1;color:var(--deep);letter-spacing:-.03em}
+table{border-collapse:collapse;width:100%;font-size:.96rem;margin:10px 0}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600}
+.rv{border-top:1px dashed var(--line);padding:8px 0;font-size:.95rem}
+.rv .y{color:var(--ok);font-weight:800}.rv .n{color:var(--bad);font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.next{display:flex;justify-content:space-between;margin-top:26px;gap:10px;flex-wrap:wrap}
+.next a{background:var(--gold);color:var(--deep);font-weight:800;text-decoration:none;padding:10px 20px;border-radius:999px}
+.next a.sec{background:transparent;border:2px solid var(--deep)}
+.hint{color:var(--mut);font-size:.9rem}
+
+/* ---- slim top bar + left slide-out menu ---- */
+.bar{position:sticky;top:0;z-index:40;background:var(--deep);color:#fff;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.menu-btn{display:flex;align-items:center;gap:10px;background:transparent;color:#fff;border:2px solid var(--gold-l);border-radius:10px;padding:7px 14px;font:inherit;font-weight:700;cursor:pointer}
+.menu-btn:hover{background:rgba(255,255,255,.12)}
+.burger,.burger::before,.burger::after{display:block;width:18px;height:2px;background:currentColor;border-radius:2px;content:"";position:relative}
+.burger::before{position:absolute;top:-6px}.burger::after{position:absolute;top:6px}
+.bar-brand{text-decoration:none;color:#fff;font-weight:800;line-height:1.15}
+.bar-brand small{display:block;font-weight:400;color:var(--gold-l);font-size:.72rem}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50}
+.drawer{position:fixed;top:0;bottom:0;left:0;width:min(310px,86vw);background:var(--deep);color:#fff;z-index:60;padding:18px 0 24px;overflow:auto;
+transform:translateX(-102%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s;box-shadow:6px 0 24px rgba(0,0,0,.3)}
+body.menu-open .drawer{transform:none;visibility:visible;transition:transform .25s ease,visibility 0s}
+@media(prefers-reduced-motion:reduce){.drawer,body.menu-open .drawer{transition:none}}
+.dr-head{display:flex;justify-content:space-between;align-items:center;padding:0 18px 12px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
+.dr-head b{font-size:1.15rem}.dr-head small{display:block;font-weight:400;color:var(--gold-l);font-size:.75rem}
+.dr-head button{background:transparent;border:2px solid var(--gold-l);color:#fff;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+.drawer h2{margin:16px 18px 4px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-l);font-weight:600}
+.drawer a{display:block;color:#fff;text-decoration:none;padding:10px 18px 10px 22px;border-left:4px solid transparent;font-size:1.02rem}
+.drawer a:hover{background:rgba(255,255,255,.1);border-left-color:var(--gold-l)}
+.drawer a.here{border-left-color:var(--gold);background:rgba(56,189,248,.2);font-weight:800}
+.drawer :focus-visible,.menu-btn:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+body.menu-open{overflow:hidden}
+.modes{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+@media(max-width:760px){.modes{grid-template-columns:1fr}}
+.mode{border:2px solid var(--line);border-radius:14px;padding:14px}
+.mode h3{margin:0 0 4px;font-size:1.15rem;color:var(--blue)}
+.mode p{margin:0 0 8px;color:var(--mut);font-size:.95rem}
+.nrow{display:flex;gap:8px;align-items:center;margin:6px 0}
+.nrow input{flex:1;min-width:0;border:2px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit;background:var(--card)}
+.dot{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;color:#fff;font-weight:800;font-size:.85rem;flex:none;vertical-align:middle}
+.btn.alt{background:transparent;border-color:var(--deep)}
+.chips12{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:12px 0}
+.c12{border:2px solid var(--line);border-radius:10px;padding:6px 10px;font-size:.92rem;background:var(--paper);min-height:42px}
+.pp{padding:5px 0;border-bottom:1px dashed var(--line)}
+.whose{display:flex;align-items:center;gap:10px;font-size:1.25rem;margin:2px 0 10px}
+.whose .dot{width:34px;height:34px;font-size:1rem}
+.tally{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:.85rem;color:var(--mut);margin-bottom:8px}
+.tl{display:inline-flex;gap:5px;align-items:center}.tl .dot{width:18px;height:18px;font-size:.65rem}
+.opt.sel{border-color:var(--deep);background:var(--gold-l)}
+.opt.sel b{background:var(--deep);color:#fff;border-color:var(--deep)}
+.lockbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.lockbar button:disabled{opacity:.45;cursor:default}
+.passbox{text-align:center;padding:30px 12px}
+.passbox .em{font-size:3.2rem;line-height:1}
+.passbox h2{margin:8px 0 4px;color:var(--deep)}
+.rvq{border-top:2px solid var(--line);padding:10px 0}
+.rvq .gfx{margin:6px 0}
+.rvq .who{font-weight:800}
+.rvq .why{font-size:.93rem;color:var(--mut);margin-top:4px}
+
+/* ===== Black + sky blue theme ===== */
+html{color-scheme:dark}
+input,select,progress{accent-color:var(--sky)}
+body{background-color:var(--paper);background-image:linear-gradient(rgba(56,189,248,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.055) 1px,transparent 1px);background-size:34px 34px;color:var(--ink)}
+.bar{background:var(--black);border-bottom:2px solid var(--sky)}
+.bar-brand{color:#fff}.bar-brand small{color:var(--sky-l)}
+.menu-btn{border-color:var(--sky);color:var(--sky-l)}.menu-btn:hover{background:rgba(56,189,248,.16)}
+.scrim{background:rgba(0,0,0,.72)}
+.drawer{background:#070b11;border-right:2px solid var(--sky);box-shadow:8px 0 30px rgba(0,0,0,.6)}
+.dr-head{border-bottom-color:rgba(56,189,248,.35)}.dr-head small{color:var(--sky-l)}
+.dr-head button{border-color:var(--sky);color:var(--sky-l)}
+.drawer h2:nth-of-type(1){color:var(--sky-l)}.drawer h2:nth-of-type(2){color:var(--lime)}.drawer h2:nth-of-type(3){color:var(--gold)}
+.drawer a:hover{background:rgba(56,189,248,.14);border-left-color:var(--sky)}
+.drawer a.here{background:rgba(56,189,248,.2);border-left-color:var(--gold)}
+.head{background:radial-gradient(900px 320px at 92% -70%,rgba(56,189,248,.5),transparent 70%),radial-gradient(500px 200px at 0% 120%,rgba(255,93,158,.2),transparent 70%),linear-gradient(180deg,#04070b,#0a1119);color:#fff;border-bottom:3px solid var(--sky)}
+.head h1{color:#fff}.head p{color:#b9d6ec}.head .crumb{color:var(--gold)}
+button:hover,button.b:hover{background:rgba(56,189,248,.16)}
+.btn,button.go,button.big,button.b.go,.next a{background:var(--gold);border-color:var(--gold);color:#05070a}
+.btn:hover,button.go:hover,button.big:hover,button.b.go:hover,.next a:hover{background:#ff86b8;border-color:#ff86b8;color:#05070a}
+.btn.sec,.btn.alt,.next a.sec{background:transparent;border:2px solid var(--sky);color:var(--ink)}
+.btn.sec:hover,.btn.alt:hover,.next a.sec:hover{background:rgba(56,189,248,.16);border-color:var(--sky);color:var(--ink)}
+.btn.ghost{background:transparent;color:#fff;border:2px solid var(--sky)}.btn.ghost:hover{background:rgba(56,189,248,.16)}
+button.on,.chip.on{background:var(--sky);color:#05070a;border-color:var(--sky)}button.on:hover{background:var(--sky-l)}
+button:disabled:hover{background:inherit}
+.tag{background:var(--sky);color:#05070a}
+.dot,.tk{color:#05070a}
+.opt.sel{background:rgba(56,189,248,.18)}.opt.sel b{background:var(--sky);color:#05070a;border-color:var(--sky)}
+.pc.pick{color:#05070a}
+.lvl.hit,.lvl.hit b{color:#05070a}
+.hero{background:radial-gradient(1100px 620px at 82% 8%,rgba(56,189,248,.3),transparent 62%),radial-gradient(760px 520px at 4% 100%,rgba(255,93,158,.2),transparent 62%),#04060a}
+.hero h1 span{background:linear-gradient(90deg,var(--sky),#c084fc 55%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.toc a:hover{background:rgba(56,189,248,.12);color:var(--ink)}
+.toc li{border-top-color:rgba(56,189,248,.45)}.toc li:last-child{border-bottom-color:rgba(56,189,248,.45)}
+.toc li:nth-child(8n+1) a::before,.toc li:nth-child(8n+1) .go{color:var(--sky)}
+.toc li:nth-child(8n+2) a::before,.toc li:nth-child(8n+2) .go{color:var(--gold)}
+.toc li:nth-child(8n+3) a::before,.toc li:nth-child(8n+3) .go{color:var(--lime)}
+.toc li:nth-child(8n+4) a::before,.toc li:nth-child(8n+4) .go{color:var(--amber)}
+.toc li:nth-child(8n+5) a::before,.toc li:nth-child(8n+5) .go{color:var(--violet)}
+.toc li:nth-child(8n+6) a::before,.toc li:nth-child(8n+6) .go{color:var(--orange)}
+.toc li:nth-child(8n+7) a::before,.toc li:nth-child(8n+7) .go{color:var(--sky-l)}
+.toc li:nth-child(8n+8) a::before,.toc li:nth-child(8n+8) .go{color:var(--lime)}
+.def:nth-child(1){border-left-color:var(--sky)}.def:nth-child(1) h3{color:var(--sky-l)}
+.def:nth-child(2){border-left-color:var(--gold)}.def:nth-child(2) h3{color:#ff9cc7}
+.def:nth-child(3){border-left-color:var(--lime)}.def:nth-child(3) h3{color:var(--lime)}
+.num:nth-child(4n+1){border-left-color:var(--sky)}.num:nth-child(4n+2){border-left-color:var(--gold)}.num:nth-child(4n+3){border-left-color:var(--lime)}.num:nth-child(4n+4){border-left-color:var(--amber)}
+footer{background:var(--black);border-top:2px solid var(--sky);color:#9db4c8}footer b{color:var(--sky-l)}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="drawer"><span class="burger"></span>Menu</button>
+  <a class="bar-brand" href="index.html">Graph Theory<small>Wits School of Education</small></a>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<nav class="drawer" id="drawer" aria-label="Main" aria-hidden="true">
+  <div class="dr-head"><div><b>Graph Theory</b><small>Wits School of Education</small></div><button id="menuClose" aria-label="Close menu">✕</button></div>
+  <h2>Start</h2>
+  <a href="index.html">Home</a>
+  <a href="index.html#contents">Table of contents</a>
+  <h2>Learn</h2>
+  <a href="playground.html">Playground</a>
+  <a href="navigate.html">Navigating Graphs</a>
+  <a href="subgraph.html">Subgraphs</a>
+  <a href="isomorphism.html">Isomorphism</a>
+  <a href="pascal.html">Pascal's Triangle</a>
+  <a href="complement.html">Complement</a>
+  <h2>Practise &amp; play</h2>
+  <a href="quiz.html" class="here" aria-current="page">Test yourself</a>
+  <a href="game.html">Bonus game</a>
+</nav>
+
+<header class="head"><div>
+  <p class="crumb">Chapter 7</p>
+  <h1>Test Yourself</h1>
+  <p>Play as a team of four: a random draw decides who answers which question, and the answers stay hidden until everyone has finished. Or practise on your own.</p>
+</div></header>
+
+<main>
+  <div class="card" id="intro">
+    <h2 style="margin:0 0 10px">Choose how to play</h2>
+    <div class="modes">
+      <div class="mode"><h3>👥 Team quiz</h3>
+        <p>Four players share one device. Twelve questions, three each. A random draw decides who answers which question. Nobody sees an answer until all four of you have finished.</p>
+        <div id="names"></div>
+        <div class="row" style="margin-top:10px"><button class="btn" id="startTeam">Draw the questions</button></div></div>
+      <div class="mode"><h3>🧑 Solo practice</h3>
+        <p>Ten questions, marked straight away with an explanation after each one.</p>
+        <p class="hint" id="best"></p>
+        <button class="btn alt" id="start">Start solo quiz</button></div>
+    </div>
+    <p class="hint" style="margin:14px 0 0">The questions cover walks, trails and paths, colouring, subgraphs, isomorphism, Pascal's triangle and complements. There are more than 60 questions in the bank, and some show a graph that is drawn fresh each time.</p>
+  </div>
+
+  <div class="card hide" id="draw">
+    <h2 style="margin:0 0 4px">🎲 The draw</h2>
+    <p class="hint" style="margin:0">Twelve questions, and each of you gets exactly three. Here is who answers what:</p>
+    <div class="chips12" id="chips12"></div>
+    <div id="byPerson"></div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="goQ" disabled>Start the quiz</button><button class="btn alt" id="redraw">Draw again</button></div>
+  </div>
+
+  <div class="card hide passbox" id="pass">
+    <div class="em">🔒</div><h2 id="passH"></h2><p id="passP" style="font-size:1.1rem"></p>
+    <button class="btn" id="ready"></button>
+  </div>
+
+  <div class="card hide" id="tplay">
+    <div class="meta"><span id="tpos"></span><span class="tag" id="ttopic"></span></div>
+    <div class="pbar" role="progressbar" aria-label="Progress"><i id="tprog"></i></div>
+    <div class="tally" id="tally"></div>
+    <div class="whose" id="whose"></div>
+    <h2 class="q" id="tqt"></h2>
+    <div class="gfx" id="tgfx"></div>
+    <div class="opts" id="topts"></div>
+    <div class="lockbar"><button class="btn" id="lock" disabled>🔒 Lock in my answer</button><span class="hint">Answers stay hidden until all four of you have finished.</span></div>
+  </div>
+
+  <div class="card hide" id="tres"></div>
+
+  <div class="card hide" id="play">
+    <div class="meta"><span id="pos"></span><span class="tag" id="topic"></span></div>
+    <div class="pbar" role="progressbar" aria-label="Progress"><i id="prog"></i></div>
+    <h2 class="q" id="qt"></h2>
+    <div class="gfx" id="gfx"></div>
+    <div class="opts" id="opts"></div>
+    <div id="fb" aria-live="polite"></div>
+    <div class="row"><button class="btn hide" id="nextq">Next question</button></div>
+  </div>
+
+  <div class="card hide" id="res">
+    <p class="hint" style="margin:0">Your score</p>
+    <div class="big"><span id="sc"></span> <span style="font-size:.4em;color:var(--mut)">/ 10</span></div>
+    <p id="msg" style="font-weight:600;font-size:1.1rem"></p>
+    <table><thead><tr><th>Chapter</th><th>Correct</th><th>Revisit</th></tr></thead><tbody id="bd"></tbody></table>
+    <h3 style="margin:18px 0 4px">Review</h3><div id="rv"></div>
+    <div class="row"><button class="btn" id="again">Try a new quiz</button><button class="btn alt" id="backHome">Back to the start</button></div>
+  </div>
+
+  <div class="next"><a class="sec" href="complement.html">← Complement</a><a href="game.html">Next: Bonus game →</a></div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const R=n=>Math.floor(Math.random()*n);
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=R(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const PAGE={Basics:'playground.html',Walks:'navigate.html',Colouring:'playground.html',Subgraphs:'subgraph.html',Isomorphism:'isomorphism.html',Pascal:'pascal.html',Complement:'complement.html'};
+const mcq=(topic,text,correct,wrong,why,graphs)=>{const opts=shuf([correct,...wrong]);return{topic,text,opts,ans:opts.indexOf(correct),why,graphs}};
+const wrongNums=(c,extra=[])=>{const s=new Set();[...extra,c+1,c-1,c+2,c-2,c*2].forEach(x=>{if(x>=0&&x!==c)s.add(x)});return shuf([...s]).slice(0,3).map(String)};
+
+/* ---------- graph helpers ---------- */
+const K=(a,b)=>a<b?a+'-'+b:b+'-'+a;
+const eset=g=>new Set(g.e.map(([a,b])=>K(a,b)));
+const degs=g=>{const d=Array(g.n+1).fill(0);g.e.forEach(([a,b])=>{d[a]++;d[b]++});return d};
+function randG(n,lo,hi){let e;do{e=[];for(let i=1;i<=n;i++)for(let j=i+1;j<=n;j++)if(Math.random()<.45)e.push([i,j])}while(e.length<lo||e.length>hi);return{n,e}}
+function adjl(g){const m=Array.from({length:g.n+1},()=>[]);g.e.forEach(([a,b])=>{m[a].push(b);m[b].push(a)});return m}
+function iso(g,h){if(g.n!==h.n||g.e.length!==h.e.length)return false;const gs=eset(g),hs=eset(h),map=[],used=new Set();
+  const go=i=>{if(i>g.n)return true;for(let w=1;w<=h.n;w++){if(used.has(w))continue;let ok=true;for(let u=1;u<i;u++)if(gs.has(K(u,i))!==hs.has(K(map[u],w))){ok=false;break}
+    if(!ok)continue;map[i]=w;used.add(w);if(go(i+1))return true;used.delete(w)}return false};return go(1)}
+function scramble(g){const p=shuf([...Array(g.n).keys()].map(x=>x+1));return{n:g.n,e:g.e.map(([a,b])=>[p[a-1],p[b-1]])}}
+const ring=(n,w,h)=>Array.from({length:n},(_,i)=>{const a=2*Math.PI*i/n-Math.PI/2;return[w/2+(w/2-26)*Math.cos(a),h/2+(h/2-26)*Math.sin(a)]});
+function drawG(c,g,label){
+  const w=260,h=200,r=devicePixelRatio||1;c.width=w*r;c.height=h*r;const x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);
+  const pts=g.pos||ring(g.n,w,h);x.lineCap='round';x.strokeStyle='#38bdf8';x.lineWidth=3;
+  g.e.forEach(([a,b])=>{x.beginPath();x.moveTo(...pts[a-1]);x.lineTo(...pts[b-1]);x.stroke()});
+  x.font='800 12px "Bricolage Grotesque",sans-serif';x.textAlign='center';x.textBaseline='middle';
+  pts.forEach((p,i)=>{x.beginPath();x.arc(p[0],p[1],13,0,7);x.fillStyle='#fbbf24';x.fill();x.lineWidth=2;x.strokeStyle='#e8f3fb';x.stroke();x.fillStyle='#05070a';x.fillText(i+1,p[0],p[1]+1)})}
+
+/* ---------- fixed question bank ---------- */
+const OPEN=['It is not a walk','Only a walk','A walk and a trail, but not a path','A walk, a trail and a path'];
+const CLOSED=['It is not a walk','Only a closed walk','A circuit, but not a directed cycle','A directed cycle (so also a circuit and a closed walk)'];
+const gA={n:5,e:[[1,2],[1,3],[1,4],[1,5],[2,3]]},gP4={n:4,e:[[1,2],[2,3],[3,4]]},gTwo={n:4,e:[[1,2],[3,4]]},gCl={n:5,e:[[1,2],[1,3],[2,3],[3,4],[4,5]]};
+const gK4e={n:4,e:[[1,2],[1,3],[1,4],[2,3],[2,4]]},gW={n:5,e:[[1,2],[2,3],[3,4],[4,5],[5,1],[2,5]]};
+const gWheel={n:6,e:[[2,3],[3,4],[4,5],[5,6],[6,2],[1,2],[1,3],[1,4],[1,5],[1,6]]};
+const gSubA={n:5,e:[[1,2],[2,3],[3,4],[4,5],[5,1],[1,3]]},gSubB={n:3,e:[[1,2],[2,3],[1,3]]},gSubC={n:5,e:[[3,5]]};
+const gC4={n:4,e:[[1,2],[2,3],[3,4],[4,1]]},gC4b={n:4,e:[[1,3],[3,2],[2,4],[4,1]]},gPaw={n:4,e:[[1,2],[2,3],[3,1],[3,4]]};
+const BANK=[
+ ['Basics','The Sum of Degrees Theorem says the sum of the degrees of all the vertices equals…','twice the number of edges',['the number of edges','the number of vertices','n(n−1)/2'],'Every edge has two ends, so it adds 1 to the degree of each end. The total is 2 × the number of edges.'],
+ ['Basics','The degree of a vertex is…','the number of edges that touch it',['the number of vertices in the graph','the number of vertices next to it that are not joined to it','the number of edges in the whole graph'],'A vertex with 3 edges touching it has degree 3. A vertex with no edges has degree 0.'],
+ ['Basics','Which graph has 5 vertices that all have degree 2?','the cycle on 5 vertices',['the path on 5 vertices','the star with 4 leaves','the complete graph K₅'],'The path has two vertices of degree 1, the star has a vertex of degree 4, and in K₅ every vertex has degree 4.'],
+ ['Basics','Two vertices are adjacent when…','an edge joins them',['they have the same degree','they are drawn next to each other','they are both in the same cycle'],'Adjacent vertices are joined directly by an edge. How the graph is drawn does not matter.'],
+ ['Basics','A complete graph on 8 vertices has how many edges?','28',['56','24','36'],'Every pair of vertices is joined: 8 × 7 ÷ 2 = 28.'],
+ ['Basics','Each vertex of a complete graph on 6 vertices has degree…','5',['6','4','15'],'It is joined to every other vertex, so its degree is 6 − 1 = 5.'],
+ ['Basics','A cycle is…','a closed loop of edges that visits each of its vertices once',['a path that never returns to where it started','any graph with at least 3 vertices','a graph with every pair of vertices joined'],'A 3-cycle is a triangle, a 4-cycle is a quadrilateral, and so on.'],
+ ['Basics','What is a clique?','a set of vertices that are all joined to each other',['a set of vertices with no edges between them','a vertex with the largest degree','any cycle in the graph'],'A clique on 4 vertices has all 6 possible edges among them.'],
+ ['Isomorphism','Which of these is enough to show two graphs are NOT isomorphic?','they have different numbers of vertices of some degree',['they have the same number of vertices','they are drawn with different layouts','they have the same number of edges'],'An isomorphism keeps every vertex\'s degree, so different degrees rule it out. The way a graph is drawn is irrelevant.'],
+ ['Isomorphism','Two graphs have the same number of vertices of each degree. They must be isomorphic.','False',['True'],'A 6-cycle and two separate triangles both have six vertices of degree 2, but they are not isomorphic. The triangles are different cyclic subgraphs.'],
+ ['Isomorphism','An isomorphism between graphs G and H is…','a matching of the vertices of G with those of H that keeps every edge and non-edge',['any matching of vertices with the same count','a matching of edges only','a way of drawing G on top of H'],'Adjacent vertices in G must match adjacent vertices in H, and non-adjacent must match non-adjacent.'],
+ ['Isomorphism','Two graphs have different numbers of triangles. Are they isomorphic?','No',['Yes','Only if they have the same number of edges','It depends how they are drawn'],'Cyclic subgraphs are kept by an isomorphism, so different triangle counts mean the graphs are not isomorphic.'],
+ ['Pascal','What is entry 2 of row 5 in Pascal\'s triangle (counting rows and entries from 0)?','10',['5','20','15'],'Row 5 is 1, 5, 10, 10, 5, 1, so entry 2 is 10.'],
+ ['Pascal','How many edges does the complete graph K₇ have?','21',['14','42','28'],'7 × 6 ÷ 2 = 21 edges, one for every pair of vertices.'],
+ ['Pascal','How many triangles are in the complete graph K₆?','20',['15','18','30'],'Entry 3 of row 6 of Pascal\'s triangle is 20, and that counts the 3-cycles in K₆.'],
+ ['Pascal','Which entry of row n of Pascal\'s triangle gives the number of triangles in Kₙ?','entry 3',['entry 2','entry 1','the last entry'],'Counting from entry 0, entry 3 of row n is the number of 3-cycles in the complete graph Kₙ.'],
+ ['Complement','A graph has 7 vertices and 10 edges. How many edges does its complement have?','11',['10','21','14'],'G and its complement together make K₇, which has 21 edges, so 21 − 10 = 11.'],
+ ['Complement','What is the complement of the complete graph K₅?','5 vertices and no edges',['K₅ again','a 5-cycle','a star'],'K₅ has every possible edge, so its complement has none.'],
+ ['Complement','The complement of a graph G has…','the same vertices as G, and exactly the edges G does not have',['the same edges as G and new vertices','only the vertices of degree 0','no vertices of G at all'],'Start from the complete graph on the same vertices and remove the edges of G.'],
+ ['Complement','Two graphs are isomorphic. What can you say about their complements?','they are isomorphic too',['they are never isomorphic','they have different numbers of edges','nothing can be said'],'Comparing complements is another way to test whether two graphs are isomorphic.'],
+ ['Subgraphs','A subgraph of G is any graph you can get from G by…','deleting some vertices and/or edges',['adding extra edges','only renaming the vertices','taking its complement'],'B is a subgraph of A when B is made entirely of vertices and edges that come from A.'],
+ ['Subgraphs','Graph B has a vertex that graph A does not have. Can B be a subgraph of A?','No',['Yes','Only if B has fewer edges','Only if B is a cycle'],'Every vertex and edge of a subgraph must come from the larger graph.'],
+ ['Subgraphs','Graph A has 6 edges and graph B has 8 edges. Can B be a subgraph of A?','No',['Yes','Only if B has fewer vertices','Only if A is complete'],'A subgraph cannot have more edges than the graph it comes from.'],
+ ['Colouring','The chromatic number χ(G) of a graph is…','the fewest colours that give joined vertices different colours',['the number of vertices','the largest degree in the graph','the number of edges'],'A proper colouring never gives two joined vertices the same colour. χ(G) is the smallest number of colours that makes this possible.'],
+ ['Colouring','What is the chromatic number of the complete graph K₅?','5',['2','3','4'],'Every pair of vertices in K₅ is joined, so all five need different colours.'],
+ ['Colouring','A graph contains a clique of 4 vertices. What is the fewest colours it could need?','4',['2','3','1'],'The four vertices of a clique are all joined, so they need four different colours.'],
+ ['Colouring','No matter how complicated a map is, how many colours are enough to colour it?','4',['3','5','6'],'The Four Colour Theorem says 4 colours always suffice for a map, which is a planar graph.'],
+ ['Colouring','What is the chromatic number of the 5-cycle C₅?','3',['2','4','5'],'Two colours would have to alternate around the cycle, and with 5 vertices the first and last would clash. Three colours are enough.'],
+ ['Walks','A walk in a graph is…','a sequence of adjacent vertices and the edges between them',['a route that never visits a vertex twice','a route that must start and end at the same vertex','a set of vertices with no edges between them'],'Every step of a walk must follow an edge. Vertices and edges may be repeated.'],
+ ['Walks','A trail is a walk that…','never travels the same edge twice',['never visits the same vertex twice','starts and ends at the same vertex','visits every vertex'],'A trail may pass through a vertex more than once, as long as it never reuses an edge.'],
+ ['Walks','A path is a walk that…','never visits the same vertex twice',['never travels the same edge twice','starts and ends at the same vertex','visits every edge'],'Beginning and ending at the same vertex does not count as visiting it twice.'],
+ ['Walks','Which statement is always true?','every path is a trail',['every walk is a trail','every trail is a path','every walk is a path'],'A path never repeats a vertex, so it cannot repeat an edge either. A walk or trail can repeat things that a path cannot.'],
+ ['Walks','A closed trail, a walk that begins and ends at the same vertex and never repeats an edge, is called a…','circuit',['path','directed cycle','clique'],'A closed trail is a circuit. A closed path is a directed cycle.'],
+ ['Walks','A closed path, which also repeats no vertex, is called a…','directed cycle',['circuit that must repeat a vertex','closed walk only','trail'],'Every directed cycle is a circuit, and every circuit is a closed walk.'],
+ ['Walks','A walk is a path.','Sometimes true',['Always true','Never true'],'A walk that happens never to repeat a vertex is a path, but many walks repeat vertices.'],
+ ['Walks','A circuit is a directed cycle.','Sometimes true',['Always true','Never true'],'A circuit is a directed cycle only when it also never visits a vertex twice.'],
+ ['Walks','A graph has a vertex with only one edge (degree 1). Why can no circuit start and end at that vertex?','To leave and come back you would have to use that one edge twice',['A vertex of degree 1 is not part of the graph','Circuits must contain at least ten edges','Circuits can only start at vertices of even degree'],'A circuit never repeats an edge, but the only way out of that vertex is also the only way back in.'],
+ ['Basics','What is the degree of vertex 1 in this graph?','4',['3','5','2'],'Vertex 1 is joined to vertices 2, 3, 4 and 5, so its degree is 4.',[[gA]]],
+ ['Basics','What is the sum of the degrees of all the vertices in this graph?','10',['5','8','9'],'The degrees are 4, 2, 2, 1 and 1, which add to 10. That is twice the 5 edges, as the Sum of Degrees Theorem says.',[[gA]]],
+ ['Subgraphs','Is Graph B a subgraph of Graph A?','Yes',['No'],'Every vertex and edge of B (vertices 1, 2, 3 and edges 1–2, 2–3, 1–3) is also in A.',[[gSubA,'Graph A'],[gSubB,'Graph B']]],
+ ['Subgraphs','Is Graph C a subgraph of Graph A?','No',['Yes'],'Graph C has an edge between 3 and 5, but Graph A has no such edge.',[[gSubA,'Graph A'],[gSubC,'Graph C']]],
+ ['Complement','How many edges does the complement of this graph have?','3',['2','4','6'],'With 4 vertices, K₄ has 6 edges. This graph uses 3 of them, so the complement has 6 − 3 = 3.',[[gP4]]],
+ ['Complement','Which list gives all the edges of the complement of this graph?','1–3, 1–4, 2–3, 2–4',['1–2, 3–4','1–3, 2–4','1–4, 2–3, 3–4'],'The complement has every edge that is missing. K₄ has 1–2, 1–3, 1–4, 2–3, 2–4 and 3–4. Take away 1–2 and 3–4.',[[gTwo]]],
+ ['Basics','Which set of vertices is the largest clique in this graph?','1, 2 and 3',['3, 4 and 5','1, 2, 3 and 4','2, 3 and 4'],'Vertices 1, 2 and 3 are all joined to each other. No set of 4 vertices is joined all round.',[[gCl]]],
+ ['Colouring','What is the chromatic number of this graph?','3',['2','4','5'],'Vertices 1, 2 and 3 are all joined, so they need 3 colours. Colour 4 like 1 and 5 like 2, and 3 colours are enough.',[[gCl]]],
+ ['Basics','How many triangles (3-cycles) does this graph have?','2',['1','3','4'],'The triangles are 1-2-3 and 1-2-4. Vertices 3 and 4 are not joined.',[[gK4e]]],
+ ['Colouring','What is the chromatic number of this graph?','3',['2','4','1'],'Vertices 1, 2 and 3 form a triangle, so at least 3 colours. Vertices 3 and 4 are not joined, so they can share a colour.',[[gK4e]]],
+ ['Colouring','What is the chromatic number of this graph?','4',['2','3','5'],'The rim (vertices 2 to 6) is a 5-cycle, which needs 3 colours. Vertex 1 is joined to every rim vertex, so it needs a fourth colour.',[[gWheel]]],
+ ['Walks','The route 1 → 2 → 3 → 4 → 5 is drawn on this graph. Which description is correct?',OPEN[3],[OPEN[0],OPEN[1],OPEN[2]],'Every step follows an edge, and no edge or vertex is repeated.',[[gW]]],
+ ['Walks','The route 1 → 2 → 5 → 1 → 2 is drawn on this graph. Which description is correct?',OPEN[1],[OPEN[0],OPEN[2],OPEN[3]],'Every step follows an edge, so it is a walk. Edge 1–2 is used twice, so it is not a trail, and so not a path.',[[gW]]],
+ ['Walks','The route 2 → 3 → 4 → 5 → 2 is drawn on this graph. Which description is correct?',CLOSED[3],[CLOSED[0],CLOSED[1],CLOSED[2]],'It begins and ends at 2, so it is closed. No edge or vertex is repeated, so it is a directed cycle.',[[gW]]],
+ ['Walks','The route 1 → 3 → 4 is drawn on this graph. Which description is correct?',OPEN[0],[OPEN[1],OPEN[2],OPEN[3]],'There is no edge between 1 and 3, so the route cannot take its first step.',[[gW]]],
+ ['Walks','The route 2 → 3 → 4 → 5 → 2 → 1 is drawn on this graph. Which description is correct?',OPEN[2],[OPEN[0],OPEN[1],OPEN[3]],'No edge is repeated, so it is a trail. Vertex 2 is visited twice, so it is not a path.',[[gW]]],
+ ['Walks','The route 1 → 2 → 5 → 4 → 3 → 2 → 1 is drawn on this graph. Which description is correct?',CLOSED[1],[CLOSED[0],CLOSED[2],CLOSED[3]],'It begins and ends at 1, so it is closed. Edge 1–2 is used at the start and again at the end, so it is only a closed walk.',[[gW]]],
+ ['Isomorphism','Are these two graphs isomorphic?','Yes',['No'],'Both are 4-cycles. Graph 2 is Graph 1 with vertices 2 and 3 swapped, which only redraws it.',[[gC4,'Graph 1'],[gC4b,'Graph 2']]],
+ ['Isomorphism','Are these two graphs isomorphic?','No',['Yes'],'Both have 4 vertices and 4 edges, but in Graph 1 every vertex has degree 2, while Graph 2 has a vertex of degree 3.',[[gC4,'Graph 1'],[gPaw,'Graph 2']]],
+ ['Basics','A graph has 6 vertices. How many pairs of vertices are there in total?','15',['12','18','30'],'6 × 5 ÷ 2 = 15.'],
+ ['Basics','A graph has 5 vertices with degrees 3, 3, 2, 2 and 2. How many edges does it have?','6',['12','5','7'],'The degrees add up to 12, which is twice the number of edges, so there are 6 edges.'],
+ ['Basics','Could a graph have 5 vertices that all have degree 3?','No, the sum of the degrees would be odd',['Yes, the complete graph K₅ does','Yes, the 5-cycle does','No, a vertex cannot have degree 3'],'The degrees would add to 15. The Sum of Degrees Theorem says the total is twice the number of edges, which is always even.'],
+ ['Subgraphs','Graph A has 7 edges. Graph B has 5 edges, and every vertex and edge of B is also in A. Is B a subgraph of A?','Yes',['No, a subgraph needs the same number of edges','No, a subgraph needs the same number of vertices','Only if B is complete'],'Taking some of the vertices and edges of A gives a subgraph. It can have fewer edges.'],
+ ['Complement','Each vertex of a graph with 6 vertices has degree 2. What is the degree of each vertex in the complement?','3',['2','4','5'],'In the complete graph on 6 vertices every vertex has degree 5. Removing the 2 edges at each vertex leaves 3.'],
+ ['Isomorphism','Graph G has a vertex of degree 3, but graph H has no vertex of degree 3. Are G and H isomorphic?','No',['Yes','Only if they have the same number of edges'],'An isomorphism keeps the degree of every vertex, so isomorphic graphs have matching degrees.'],
+ ['Pascal','How many triangles are in the complete graph K₅?','10',['5','15','20'],'Entry 3 of row 5 of Pascal\'s triangle (1, 5, 10, 10, 5, 1) is 10.'],
+ ['Walks','A route lists 8 vertices (repeats counted). How many steps along edges does it take?','7',['8','6','9'],'Each pair of vertices next to each other in the list is one step, so 8 vertices make 7 steps.'],
+ ['Colouring','In a proper colouring, two vertices that are joined by an edge must…','have different colours',['have the same colour','have colours that are both even numbers','both use the first colour'],'That is the rule of a proper colouring.'],
+ ['Colouring','Which of these graphs needs exactly 2 colours?','the path on 4 vertices',['the triangle K₃','the complete graph K₄','the 5-cycle C₅'],'Alternate two colours along the path. The triangle needs 3, K₄ needs 4 and C₅ needs 3.']
+].map(q=>mcq(q[0],q[1],q[2],q[3],q[4],q[5]));
+
+/* ---------- generated graph questions ---------- */
+function qDegree(){const g=randG(6,5,10),v=1+R(6),d=degs(g)[v];
+  return mcq('Basics',`What is the degree of vertex ${v} in this graph?`,String(d),wrongNums(d,[g.e.length]),`Count the edges that touch vertex ${v}: there are ${d}.`,[[g]])}
+function qEdges(){const g=randG(6,5,10),m=g.e.length,d=degs(g).slice(1);
+  return mcq('Basics','How many edges does this graph have?',String(m),wrongNums(m,[2*m]),`The degrees are ${d.join(', ')}, which add up to ${2*m}. By the Sum of Degrees Theorem that is twice the number of edges, so there are ${m}.`,[[g]])}
+function qConn(){const g=randG(6,4,8),m=g.e.length,es=eset(g);
+  if(Math.random()<.5){const t=15-m;return mcq('Basics','How many pairs of vertices in this graph are NOT adjacent?',String(t),wrongNums(t,[m,15]),`With 6 vertices there are 6 × 5 ÷ 2 = 15 pairs. ${m} of them are joined by an edge, so ${t} are not adjacent.`,[[g]])}
+  let tri=0;for(let a=1;a<=6;a++)for(let b=a+1;b<=6;b++)for(let c=b+1;c<=6;c++)if(es.has(K(a,b))&&es.has(K(b,c))&&es.has(K(a,c)))tri++;
+  return mcq('Basics','Does this graph contain a triangle (a 3-cycle)?',tri?'Yes':'No',[tri?'No':'Yes'],tri?`Yes. Three of the vertices are all joined to each other (there ${tri===1?'is 1 triangle':'are '+tri+' triangles'}).`:'No set of three vertices is joined all round, so there is no triangle.',[[g]])}
+function routeKind(g,r){const es=eset(g);for(let i=0;i<r.length-1;i++)if(!es.has(K(r[i],r[i+1])))return null;
+  const seen=new Set();let repE=[];for(let i=0;i<r.length-1;i++){const k=K(r[i],r[i+1]);if(seen.has(k))repE.push(k);seen.add(k)}
+  const closed=r[0]===r[r.length-1],vs=closed?r.slice(0,-1):r,cnt={},repV=[];vs.forEach(v=>{cnt[v]=(cnt[v]||0)+1;if(cnt[v]===2)repV.push(v)});
+  return{closed,trail:!repE.length,path:!repE.length&&!repV.length,repE,repV}}
+function qRoute(){
+  for(let t=0;t<200;t++){
+    const g=randG(6,6,10),m=adjl(g),start=1+R(6);if(!m[start].length)continue;
+    const r=[start],len=3+R(4),avoid=Math.random()<.5;
+    for(let i=0;i<len;i++){const nb=m[r[r.length-1]];if(!nb.length)break;const fresh=nb.filter(x=>!r.includes(x));r.push((avoid&&fresh.length?fresh:nb)[R((avoid&&fresh.length?fresh:nb).length)])}
+    if(avoid&&Math.random()<.6){const back=m[r[r.length-1]].filter(x=>x===r[0]);if(back.length&&r.length>=3)r.push(r[0])}
+    if(Math.random()<.22&&r.length>=3){const i=1+R(r.length-2),others=[1,2,3,4,5,6].filter(x=>x!==r[i-1]&&x!==r[i+1]&&!m[r[i-1]].includes(x));if(others.length)r[i]=others[R(others.length)]}
+    if(r.length<4)continue;
+    const k=routeKind(g,r),text=r.join(' → ');
+    const open=['It is not a walk','Only a walk','A walk and a trail, but not a path','A walk, a trail and a path'],closedO=['It is not a walk','Only a closed walk','A circuit, but not a directed cycle','A directed cycle (so also a circuit and a closed walk)'];
+    let set,ans,why;
+    if(!k){set=r[0]===r[r.length-1]?closedO:open;ans=0;const i=r.findIndex((v,j)=>j<r.length-1&&!eset(g).has(K(v,r[j+1])));why=`There is no edge between ${r[i]} and ${r[i+1]}, so the route cannot take that step. A walk has to follow edges.`}
+    else if(!k.closed){set=open;ans=k.path?3:k.trail?2:1;why=ans===3?'It follows edges and never repeats an edge or a vertex.':ans===2?`It never repeats an edge, but vertex ${k.repV.join(' and ')} is visited more than once, so it is not a path.`:`Edge ${k.repE.map(e=>e.replace('-','')).join(' and ')} is travelled more than once, so it is not a trail, and so not a path.`}
+    else{set=closedO;ans=k.path?3:k.trail?2:1;why='It begins and ends at the same vertex, so it is closed. '+(ans===3?'No edge or vertex is repeated, so it is a directed cycle.':ans===2?`No edge is repeated, so it is a circuit, but vertex ${k.repV.join(' and ')} is visited twice, so it is not a directed cycle.`:`Edge ${k.repE.map(e=>e.replace('-','')).join(' and ')} is travelled twice, so it is only a closed walk.`)}
+    const q=mcq('Walks',`This route is drawn on the graph: ${text}. Which description is correct?`,set[ans],set.filter((_,i)=>i!==ans),why,[[g]]);return q}
+  return qDegree()}
+function qComp(){const g=randG(6,4,9),m=g.e.length,t=15-m;
+  return mcq('Complement','How many edges does the complement of this graph have?',String(t),wrongNums(t,[m,15]),`The graph has 6 vertices, so K₆ has 15 edges. The graph uses ${m} of them, which leaves ${t} for the complement.`,[[g]])}
+function qIso(){const g=randG(5,4,6);let h=scramble(g);
+  if(Math.random()<.5){const es=eset(h),non=[];for(let i=1;i<=5;i++)for(let j=i+1;j<=5;j++)if(!es.has(K(i,j)))non.push([i,j]);
+    if(non.length){h.e.splice(R(h.e.length),1);h.e.push(non[R(non.length)])}}
+  g.pos=undefined;const rp=ring(5,260,200);h.pos=shuf(rp);
+  const same=iso(g,h),dg=degs(g).slice(1).sort((a,b)=>b-a),dh=degs(h).slice(1).sort((a,b)=>b-a);
+  const why=same?'Yes. Renaming the vertices of the first graph gives exactly the second, even though it is drawn differently.':dg.join()!==dh.join()?`No. The vertices have different degrees: (${dg.join(', ')}) against (${dh.join(', ')}).`:'No. The degrees match, but no renaming of the vertices keeps every edge, so the structure is different.';
+  return mcq('Isomorphism','Are these two graphs isomorphic?',same?'Yes':'No',[same?'No':'Yes'],why,[[g,'Graph 1'],[h,'Graph 2']])}
+
+function build(){const gen=shuf([qDegree,qEdges,qConn,qComp,qIso,qRoute]).map(f=>f());
+  const fixed=shuf(BANK).slice(0,4);return shuf([...gen,...fixed])}
+
+/* ---------- screens ---------- */
+const SCREENS=['intro','draw','pass','tplay','tres','play','res'];
+function show(id){SCREENS.forEach(x=>$(x).classList.toggle('hide',x!==id));window.scrollTo({top:0})}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function drawFigs(box,q,small){box.innerHTML='';
+  (q.graphs||[]).forEach(([g,cap])=>{const f=document.createElement('figure'),c=document.createElement('canvas');f.appendChild(c);
+    if(cap){const fc=document.createElement('figcaption');fc.textContent=cap;f.appendChild(fc)}box.appendChild(f);drawG(c,g);if(small)c.style.width='170px'})}
+
+/* ---------- solo practice: marked straight away ---------- */
+function build(){const gen=shuf([qDegree,qEdges,qConn,qComp,qIso,qRoute]).map(f=>f());
+  const fixed=shuf(BANK).slice(0,4);return shuf([...gen,...fixed])}
+let qs=[],i=0,picks=[],score=0;
+function bestLine(){const b=store.get('gt-quiz-best');$('best').textContent=b?`Your best score so far: ${b} out of 10.`:'Take the quiz to set your first score.'}
+function start(){qs=build();i=0;picks=[];score=0;show('play');ask()}
+function ask(){
+  const q=qs[i];$('pos').textContent=`Question ${i+1} of ${qs.length}`;$('topic').textContent=q.topic;$('prog').style.width=(i/qs.length*100)+'%';
+  $('qt').textContent=q.text;$('fb').innerHTML='';$('nextq').classList.add('hide');$('nextq').textContent=i===qs.length-1?'See my results':'Next question';
+  drawFigs($('gfx'),q);
+  $('opts').innerHTML=q.opts.map((o,k)=>`<button class="opt" data-k="${k}"><b>${'ABCD'[k]}</b><span>${esc(o)}</span></button>`).join('');
+  $('opts').querySelector('button').focus({preventScroll:true})}
+$('opts').addEventListener('click',e=>{
+  const b=e.target.closest('.opt');if(!b||b.disabled)return;
+  const q=qs[i],k=+b.dataset.k,ok=k===q.ans;picks[i]=k;if(ok)score++;
+  [...$('opts').children].forEach((x,j)=>{x.disabled=true;if(j===q.ans)x.classList.add('right');else if(j===k)x.classList.add('wrong')});
+  $('fb').innerHTML=`<div class="fb${ok?'':' no'}"><b>${ok?'Correct!':'Not quite.'}</b>${ok?'':`The answer is ${'ABCD'[q.ans]}: ${esc(q.opts[q.ans])}. `}${esc(q.why)}</div>`;
+  $('nextq').classList.remove('hide');$('nextq').focus({preventScroll:true})});
+$('nextq').onclick=()=>{i++;i<qs.length?ask():finish()};
+function finish(){
+  show('res');$('sc').textContent=score;
+  const best=+store.get('gt-quiz-best')||0;if(score>best)store.set('gt-quiz-best',score);
+  $('msg').textContent=score>=9?'Outstanding. You have this topic down.':score>=7?'Well done. Just a few things to polish.':score>=5?'Getting there. Review the chapters below and try again.':'Keep practising. The chapters below will help, then try a new quiz.';
+  const t={};qs.forEach((q,j)=>{t[q.topic]=t[q.topic]||[0,0];t[q.topic][1]++;if(picks[j]===q.ans)t[q.topic][0]++});
+  $('bd').innerHTML=Object.entries(t).map(([k,[a,b]])=>`<tr><td>${k}</td><td>${a} of ${b}</td><td>${a<b?`<a href="${PAGE[k]}">Open chapter</a>`:'Nothing to revisit ✓'}</td></tr>`).join('');
+  $('rv').innerHTML=qs.map((q,j)=>{const ok=picks[j]===q.ans;return`<div class="rv"><span class="${ok?'y':'n'}">${ok?'✓':'✗'}</span> <b>${j+1}.</b> ${esc(q.text)}<br><span class="hint">${ok?'':`You chose: ${esc(q.opts[picks[j]])}. `}Answer: ${esc(q.opts[q.ans])}</span></div>`}).join('')}
+
+/* ---------- team quiz: four players, three questions each ---------- */
+const PCOL=['#ff5d6c','#22d3ee','#a78bfa','#4ade80'],DEF=['Lesego','Sibusiso','Noluthando','Tiego'];
+let T=null;
+const dotOf=n=>`<span class="dot" style="background:${PCOL[n]}">${n+1}</span>`;
+{const saved=(store.get('gt-team-names')||'').split('|');
+ $('names').innerHTML=DEF.map((n,k)=>`<label class="nrow">${dotOf(k)}<input type="text" id="tn${k}" maxlength="14" value="${esc(saved[k]||n)}" aria-label="Player ${k+1} name"></label>`).join('')}
+function readNames(){const out=[];for(let k=0;k<4;k++){let n=($('tn'+k).value||'').trim()||DEF[k];while(out.includes(n))n+='*';out.push(n)}store.set('gt-team-names',out.join('|'));return out}
+function deal(){let who;for(let t=0;t<500;t++){who=shuf([0,0,0,1,1,1,2,2,2,3,3,3]);if(!who.some((w,k)=>k>1&&w===who[k-1]&&w===who[k-2]))break}return who}
+function poolPick(k){return shuf([...BANK.map(q=>()=>q),qDegree,qEdges,qConn,qComp,qIso,qRoute]).slice(0,k).map(f=>f())}
+function startTeam(){T={names:readNames(),who:deal(),qs:poolPick(12),picks:Array(12).fill(-1),i:0,sel:-1};show('draw');runDraw()}
+async function runDraw(){
+  const my=T;$('goQ').disabled=true;$('byPerson').innerHTML='';
+  $('chips12').innerHTML=T.who.map((_,k)=>`<div class="c12" id="c${k}"><b>Q${k+1}</b> <span>❓</span></div>`).join('');
+  for(let k=0;k<12;k++){
+    if(!window.FAST)for(let f=0;f<5;f++){if(T!==my)return;$('c'+k).lastElementChild.textContent=my.names[R(4)];await wait(60)}
+    if(T!==my)return;const c=$('c'+k);c.style.borderColor=PCOL[my.who[k]];c.style.background='var(--card)';
+    c.lastElementChild.innerHTML=`<b style="color:${PCOL[my.who[k]]}">${esc(my.names[my.who[k]])}</b>`;
+    if(!window.FAST)await wait(130)}
+  $('byPerson').innerHTML=my.names.map((n,k)=>`<div class="pp">${dotOf(k)} <b>${esc(n)}</b> answers questions ${my.who.map((w,j)=>w===k?j+1:0).filter(Boolean).join(', ')}</div>`).join('');
+  $('goQ').disabled=false;$('goQ').focus({preventScroll:true})}
+function showQ(){
+  const q=T.qs[T.i],w=T.who[T.i];show('tplay');T.sel=-1;
+  $('tpos').textContent=`Question ${T.i+1} of 12`;$('ttopic').textContent=q.topic;$('tprog').style.width=(T.i/12*100)+'%';
+  $('whose').innerHTML=`${dotOf(w)}<span><b style="color:${PCOL[w]}">${esc(T.names[w])}</b>, this question is yours!</span>`;
+  $('tqt').textContent=q.text;drawFigs($('tgfx'),q);
+  $('topts').innerHTML=q.opts.map((o,k)=>`<button class="opt" data-k="${k}"><b>${'ABCD'[k]}</b><span>${esc(o)}</span></button>`).join('');
+  $('lock').disabled=true;
+  $('tally').innerHTML=T.names.map((n,k)=>{const d=T.who.filter((x,j)=>x===k&&j<T.i).length;return`<span class="tl">${dotOf(k)} ${esc(n)} ${'●'.repeat(d)}${'○'.repeat(3-d)}</span>`}).join('')}
+$('topts').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b||!T)return;T.sel=+b.dataset.k;
+  [...$('topts').children].forEach(x=>x.classList.toggle('sel',x===b));$('lock').disabled=false});
+$('lock').onclick=()=>{if(!T||T.sel<0)return;T.picks[T.i]=T.sel;T.i++;showPass()};
+function showPass(){
+  show('pass');
+  if(T.i<12){const w=T.who[T.i],prev=T.who[T.i-1];$('passH').textContent='Answer locked in. 🔒';
+    $('passP').innerHTML=w===prev?`The next question is also for <b style="color:${PCOL[w]}">${esc(T.names[w])}</b>.`:`Pass the device to <b style="color:${PCOL[w]}">${esc(T.names[w])}</b>. Question ${T.i+1} is theirs.`;
+    $('ready').textContent=`${T.names[w]} is ready`}
+  else{$('passH').textContent='All four of you have answered! 🎉';$('passP').textContent='Nobody has seen an answer yet. Ready for the reveal?';$('ready').textContent='Reveal the answers'}
+  $('ready').focus({preventScroll:true})}
+$('ready').onclick=()=>{if(T)T.i<12?showQ():showResults()};
+function showResults(){
+  show('tres');const sc=[0,0,0,0],mk=[[],[],[],[]],topics={};
+  T.qs.forEach((q,k)=>{const ok=T.picks[k]===q.ans;if(ok)sc[T.who[k]]++;mk[T.who[k]].push({k,ok});const t=topics[q.topic]=topics[q.topic]||[0,0];t[1]++;if(ok)t[0]++});
+  const best=Math.max(...sc),win=sc.map((s,k)=>s===best?k:-1).filter(k=>k>=0),order=[0,1,2,3].sort((a,b)=>sc[b]-sc[a]||a-b);
+  const head=win.length===4&&best===0?'Nobody scored this time. Time to revise!':win.length===1?`🏆 ${esc(T.names[win[0]])} wins with ${best} out of 3!`:`🤝 It is a tie: ${win.map(k=>esc(T.names[k])).join(' and ')} with ${best} out of 3`;
+  $('tres').innerHTML=`<h2 style="margin:0 0 8px;color:var(--deep)">${head}</h2>
+   <table><thead><tr><th>Player</th><th>Score</th><th>Their questions</th></tr></thead><tbody>${order.map(k=>`<tr><td>${dotOf(k)} <b>${esc(T.names[k])}</b></td><td><b>${sc[k]} / 3</b></td><td>${mk[k].map(m=>`<span class="${m.ok?'y':'n'}">${m.ok?'✓':'✗'}</span> Q${m.k+1}`).join(' &nbsp; ')}</td></tr>`).join('')}</tbody></table>
+   <p class="hint">Team total: ${sc.reduce((a,b)=>a+b,0)} out of 12.</p>
+   <h3 style="margin:14px 0 4px">Chapters to revisit</h3>
+   <table><tbody>${Object.entries(topics).map(([t,[a,b]])=>`<tr><td>${t}</td><td>${a} of ${b}</td><td>${a<b?`<a href="${PAGE[t]}">Open chapter</a>`:'✓'}</td></tr>`).join('')}</tbody></table>
+   <h3 style="margin:14px 0 4px">Every question and answer</h3><div id="trv"></div>
+   <div class="row" style="margin-top:14px"><button class="btn" id="tagain">Play again with new questions</button><button class="btn alt" id="tnames">Change names</button></div>`;
+  const box=$('trv');
+  T.qs.forEach((q,k)=>{const w=T.who[k],ok=T.picks[k]===q.ans,d=document.createElement('div');d.className='rvq';
+    d.innerHTML=`<div><span class="${ok?'y':'n'}">${ok?'✓':'✗'}</span> <b>Q${k+1}</b> · <span class="who" style="color:${PCOL[w]}">${esc(T.names[w])}</span></div><div>${esc(q.text)}</div><div class="gfx"></div>
+      <div>${esc(T.names[w])} answered: <b>${esc(q.opts[T.picks[k]])}</b>${ok?'':`<br>Correct answer: <b>${esc(q.opts[q.ans])}</b>`}</div><div class="why">${esc(q.why)}</div>`;
+    box.appendChild(d);drawFigs(d.querySelector('.gfx'),q,true)});
+  $('tagain').onclick=startTeam;$('tnames').onclick=()=>show('intro')}
+
+$('startTeam').onclick=startTeam;$('redraw').onclick=startTeam;$('goQ').onclick=()=>{T.i=0;showQ()};
+$('start').onclick=start;$('again').onclick=start;$('backHome').onclick=()=>show('intro');bestLine();
+</script>
+<script>
+(function(){const b=document.body,btn=document.getElementById('menuBtn'),dr=document.getElementById('drawer'),sc=document.getElementById('scrim');
+function set(o,f){b.classList.toggle('menu-open',o);btn.setAttribute('aria-expanded',o);dr.setAttribute('aria-hidden',!o);sc.hidden=!o;
+  if(f!==false){if(o){const a=dr.querySelector('a.here')||dr.querySelector('a');a&&a.focus()}else btn.focus()}}
+btn.onclick=()=>set(!b.classList.contains('menu-open'));
+document.getElementById('menuClose').onclick=()=>set(false);sc.onclick=()=>set(false);
+dr.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false,false)));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&b.classList.contains('menu-open'))set(false)});})();
+</script>
+</body>
+</html>

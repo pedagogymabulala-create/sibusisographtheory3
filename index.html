@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to Graph Theory | Wits School of Education</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* Wits-inspired palette: swap these hex values if you have the official brand codes */
+:root{--sky:#38bdf8;--sky-l:#7dd3fc;--black:#04060a;--lime:#a3e635;--amber:#fbbf24;--violet:#a78bfa;--orange:#fb923c;--blue:#7dd3fc;--deep:#38bdf8;--gold:#ff5d9e;--gold-l:#ffb0d0;--paper:#070a0f;--card:#0d141d;--card2:#131d29;--ink:#e8f3fb;--mut:#9db4c8;--line:#25374c;--ok:#4ade80;--bad:#ff6b81}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:17px/1.6 'Bricolage Grotesque',system-ui,sans-serif;color:var(--ink);background:var(--paper)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+nav.top{background:var(--deep);color:#fff;display:flex;flex-wrap:wrap;gap:4px 22px;align-items:center;padding:12px 24px}
+nav.top .brand{font-weight:800;margin-right:auto;letter-spacing:.01em}
+nav.top .brand small{display:block;font-weight:400;color:var(--gold-l);font-size:.72rem}
+nav.top a{text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
+nav.top a:hover{border-color:var(--gold)}
+.hero{position:relative;background:var(--blue);color:#fff;overflow:hidden;min-height:78vh;display:flex;align-items:center}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%}
+.hero .in{position:relative;max-width:980px;margin:0 auto;padding:72px 24px;width:100%}
+.hero p.kicker{color:var(--gold-l);margin:0 0 10px;font-size:1.05rem}
+.hero h1{font-size:clamp(2.6rem,9vw,6.4rem);line-height:.92;font-weight:800;margin:0 0 22px;letter-spacing:-.035em}
+.hero h1 span{display:block;color:var(--gold)}
+.hero p.lead{max-width:52ch;font-size:1.2rem;color:#b9d6ec;margin:0 0 28px}
+.btn{display:inline-block;background:var(--gold);color:var(--deep);font-weight:800;text-decoration:none;padding:13px 24px;border-radius:999px}
+.btn:hover{background:var(--gold-l)}
+.btn.ghost{background:transparent;color:#fff;border:2px solid var(--gold-l);margin-left:10px}
+.btn.ghost:hover{background:rgba(255,255,255,.1)}
+section{max-width:980px;margin:0 auto;padding:64px 24px}
+h2{font-size:clamp(1.7rem,4vw,2.4rem);margin:0 0 6px;font-weight:800;letter-spacing:-.02em;color:var(--deep)}
+.sub{color:var(--mut);margin:0 0 28px;max-width:58ch}
+.defs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.def{border-left:5px solid var(--gold);padding:4px 0 4px 16px}
+.def h3{margin:0;font-size:1.15rem;color:var(--blue)}
+.def p{margin:4px 0 0;color:var(--mut);font-size:.98rem}
+.toc{list-style:none;margin:0;padding:0;counter-reset:ch}
+.toc li{counter-increment:ch;border-top:2px solid var(--deep)}
+.toc li:last-child{border-bottom:2px solid var(--deep)}
+.toc a{display:grid;grid-template-columns:56px 1fr auto;gap:6px 16px;align-items:center;padding:20px 8px;text-decoration:none;transition:background .15s,padding-left .15s}
+.toc a::before{content:counter(ch);font-size:2.2rem;font-weight:800;color:var(--gold)}
+.toc a:hover{background:var(--blue);color:#fff;padding-left:18px}
+.toc a:hover .d{color:#cfe6f7}
+.toc .t{font-size:1.35rem;font-weight:800}
+.toc .d{grid-column:2;color:var(--mut);font-size:.96rem;margin-top:-4px}
+.toc .go{font-weight:600;color:var(--gold)}
+.toc .go::after{content:" →"}
+footer{background:var(--deep);color:#9db4c8;text-align:center;padding:28px 24px;font-size:.92rem}
+footer b{color:var(--gold-l)}
+@media(max-width:560px){.toc a{grid-template-columns:40px 1fr}.toc .go{display:none}.toc a::before{font-size:1.7rem}.btn.ghost{margin:10px 0 0}}
+
+/* ---- slim top bar + left slide-out menu ---- */
+.bar{position:sticky;top:0;z-index:40;background:var(--deep);color:#fff;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.menu-btn{display:flex;align-items:center;gap:10px;background:transparent;color:#fff;border:2px solid var(--gold-l);border-radius:10px;padding:7px 14px;font:inherit;font-weight:700;cursor:pointer}
+.menu-btn:hover{background:rgba(255,255,255,.12)}
+.burger,.burger::before,.burger::after{display:block;width:18px;height:2px;background:currentColor;border-radius:2px;content:"";position:relative}
+.burger::before{position:absolute;top:-6px}.burger::after{position:absolute;top:6px}
+.bar-brand{text-decoration:none;color:#fff;font-weight:800;line-height:1.15}
+.bar-brand small{display:block;font-weight:400;color:var(--gold-l);font-size:.72rem}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50}
+.drawer{position:fixed;top:0;bottom:0;left:0;width:min(310px,86vw);background:var(--deep);color:#fff;z-index:60;padding:18px 0 24px;overflow:auto;
+transform:translateX(-102%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s;box-shadow:6px 0 24px rgba(0,0,0,.3)}
+body.menu-open .drawer{transform:none;visibility:visible;transition:transform .25s ease,visibility 0s}
+@media(prefers-reduced-motion:reduce){.drawer,body.menu-open .drawer{transition:none}}
+.dr-head{display:flex;justify-content:space-between;align-items:center;padding:0 18px 12px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
+.dr-head b{font-size:1.15rem}.dr-head small{display:block;font-weight:400;color:var(--gold-l);font-size:.75rem}
+.dr-head button{background:transparent;border:2px solid var(--gold-l);color:#fff;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+.drawer h2{margin:16px 18px 4px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-l);font-weight:600}
+.drawer a{display:block;color:#fff;text-decoration:none;padding:10px 18px 10px 22px;border-left:4px solid transparent;font-size:1.02rem}
+.drawer a:hover{background:rgba(255,255,255,.1);border-left-color:var(--gold-l)}
+.drawer a.here{border-left-color:var(--gold);background:rgba(56,189,248,.2);font-weight:800}
+.drawer :focus-visible,.menu-btn:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+body.menu-open{overflow:hidden}
+
+/* ===== Black + sky blue theme ===== */
+html{color-scheme:dark}
+input,select,progress{accent-color:var(--sky)}
+body{background-color:var(--paper);background-image:linear-gradient(rgba(56,189,248,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.055) 1px,transparent 1px);background-size:34px 34px;color:var(--ink)}
+.bar{background:var(--black);border-bottom:2px solid var(--sky)}
+.bar-brand{color:#fff}.bar-brand small{color:var(--sky-l)}
+.menu-btn{border-color:var(--sky);color:var(--sky-l)}.menu-btn:hover{background:rgba(56,189,248,.16)}
+.scrim{background:rgba(0,0,0,.72)}
+.drawer{background:#070b11;border-right:2px solid var(--sky);box-shadow:8px 0 30px rgba(0,0,0,.6)}
+.dr-head{border-bottom-color:rgba(56,189,248,.35)}.dr-head small{color:var(--sky-l)}
+.dr-head button{border-color:var(--sky);color:var(--sky-l)}
+.drawer h2:nth-of-type(1){color:var(--sky-l)}.drawer h2:nth-of-type(2){color:var(--lime)}.drawer h2:nth-of-type(3){color:var(--gold)}
+.drawer a:hover{background:rgba(56,189,248,.14);border-left-color:var(--sky)}
+.drawer a.here{background:rgba(56,189,248,.2);border-left-color:var(--gold)}
+.head{background:radial-gradient(900px 320px at 92% -70%,rgba(56,189,248,.5),transparent 70%),radial-gradient(500px 200px at 0% 120%,rgba(255,93,158,.2),transparent 70%),linear-gradient(180deg,#04070b,#0a1119);color:#fff;border-bottom:3px solid var(--sky)}
+.head h1{color:#fff}.head p{color:#b9d6ec}.head .crumb{color:var(--gold)}
+button:hover,button.b:hover{background:rgba(56,189,248,.16)}
+.btn,button.go,button.big,button.b.go,.next a{background:var(--gold);border-color:var(--gold);color:#05070a}
+.btn:hover,button.go:hover,button.big:hover,button.b.go:hover,.next a:hover{background:#ff86b8;border-color:#ff86b8;color:#05070a}
+.btn.sec,.btn.alt,.next a.sec{background:transparent;border:2px solid var(--sky);color:var(--ink)}
+.btn.sec:hover,.btn.alt:hover,.next a.sec:hover{background:rgba(56,189,248,.16);border-color:var(--sky);color:var(--ink)}
+.btn.ghost{background:transparent;color:#fff;border:2px solid var(--sky)}.btn.ghost:hover{background:rgba(56,189,248,.16)}
+button.on,.chip.on{background:var(--sky);color:#05070a;border-color:var(--sky)}button.on:hover{background:var(--sky-l)}
+button:disabled:hover{background:inherit}
+.tag{background:var(--sky);color:#05070a}
+.dot,.tk{color:#05070a}
+.opt.sel{background:rgba(56,189,248,.18)}.opt.sel b{background:var(--sky);color:#05070a;border-color:var(--sky)}
+.pc.pick{color:#05070a}
+.lvl.hit,.lvl.hit b{color:#05070a}
+.hero{background:radial-gradient(1100px 620px at 82% 8%,rgba(56,189,248,.3),transparent 62%),radial-gradient(760px 520px at 4% 100%,rgba(255,93,158,.2),transparent 62%),#04060a}
+.hero h1 span{background:linear-gradient(90deg,var(--sky),#c084fc 55%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.toc a:hover{background:rgba(56,189,248,.12);color:var(--ink)}
+.toc li{border-top-color:rgba(56,189,248,.45)}.toc li:last-child{border-bottom-color:rgba(56,189,248,.45)}
+.toc li:nth-child(8n+1) a::before,.toc li:nth-child(8n+1) .go{color:var(--sky)}
+.toc li:nth-child(8n+2) a::before,.toc li:nth-child(8n+2) .go{color:var(--gold)}
+.toc li:nth-child(8n+3) a::before,.toc li:nth-child(8n+3) .go{color:var(--lime)}
+.toc li:nth-child(8n+4) a::before,.toc li:nth-child(8n+4) .go{color:var(--amber)}
+.toc li:nth-child(8n+5) a::before,.toc li:nth-child(8n+5) .go{color:var(--violet)}
+.toc li:nth-child(8n+6) a::before,.toc li:nth-child(8n+6) .go{color:var(--orange)}
+.toc li:nth-child(8n+7) a::before,.toc li:nth-child(8n+7) .go{color:var(--sky-l)}
+.toc li:nth-child(8n+8) a::before,.toc li:nth-child(8n+8) .go{color:var(--lime)}
+.def:nth-child(1){border-left-color:var(--sky)}.def:nth-child(1) h3{color:var(--sky-l)}
+.def:nth-child(2){border-left-color:var(--gold)}.def:nth-child(2) h3{color:#ff9cc7}
+.def:nth-child(3){border-left-color:var(--lime)}.def:nth-child(3) h3{color:var(--lime)}
+.num:nth-child(4n+1){border-left-color:var(--sky)}.num:nth-child(4n+2){border-left-color:var(--gold)}.num:nth-child(4n+3){border-left-color:var(--lime)}.num:nth-child(4n+4){border-left-color:var(--amber)}
+footer{background:var(--black);border-top:2px solid var(--sky);color:#9db4c8}footer b{color:var(--sky-l)}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="drawer"><span class="burger"></span>Menu</button>
+  <a class="bar-brand" href="index.html">Graph Theory<small>Wits School of Education</small></a>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<nav class="drawer" id="drawer" aria-label="Main" aria-hidden="true">
+  <div class="dr-head"><div><b>Graph Theory</b><small>Wits School of Education</small></div><button id="menuClose" aria-label="Close menu">✕</button></div>
+  <h2>Start</h2>
+  <a href="index.html" class="here" aria-current="page">Home</a>
+  <a href="index.html#contents">Table of contents</a>
+  <h2>Learn</h2>
+  <a href="playground.html">Playground</a>
+  <a href="navigate.html">Navigating Graphs</a>
+  <a href="subgraph.html">Subgraphs</a>
+  <a href="isomorphism.html">Isomorphism</a>
+  <a href="pascal.html">Pascal's Triangle</a>
+  <a href="complement.html">Complement</a>
+  <h2>Practise &amp; play</h2>
+  <a href="quiz.html">Test yourself</a>
+  <a href="game.html">Bonus game</a>
+</nav>
+
+<header class="hero">
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="in">
+    <p class="kicker">Compiled by Mr S.Zwane</p>
+    <h1>WELCOME TO <span>GRAPH THEORY</span></h1>
+    <p class="lead">Where dots meet lines and every connection tells a story. Draw graphs, count their vertices and degrees, test whether two graphs are secretly the same, and explore complements and Pascal's triangle.</p>
+    <a class="btn" href="#contents">Start exploring</a>
+    <a class="btn ghost" href="playground.html">Jump to the playground</a>
+  </div>
+</header>
+
+<section id="basics">
+  <h2>Three words to begin</h2>
+  <p class="sub">Everything in this course is built from these ideas.</p>
+  <div class="defs">
+    <div class="def"><h3>Vertex</h3><p>A point in the graph. Think of a person, a city or a classroom.</p></div>
+    <div class="def"><h3>Edge</h3><p>A line joining two vertices. It says "these two are joined".</p></div>
+    <div class="def"><h3>Degree</h3><p>How many edges touch a vertex. Add every degree and you get twice the number of edges.</p></div>
+  </div>
+</section>
+
+<section id="contents">
+  <h2>Table of contents</h2>
+  <p class="sub">Each chapter lives on its own page. Follow them in order or jump straight in.</p>
+  <ol class="toc">
+    <li><a href="playground.html"><span class="t">The Graph Playground</span><span class="go">Open</span><span class="d">Draw graphs, count vertices and edges, read every degree.</span></a></li>
+    <li><a href="navigate.html"><span class="t">Navigating Graphs</span><span class="go">Open</span><span class="d">Walks, trails, paths and circuits: build a route through a graph and see what it is called.</span></a></li>
+    <li><a href="subgraph.html"><span class="t">Subgraphs</span><span class="go">Open</span><span class="d">Find out whether one graph is hiding inside another, and see every copy highlighted.</span></a></li>
+    <li><a href="isomorphism.html"><span class="t">Isomorphism Checker</span><span class="go">Open</span><span class="d">Give it two graphs and find out if they are the same shape in disguise.</span></a></li>
+    <li><a href="pascal.html"><span class="t">Pascal's Triangle</span><span class="go">Open</span><span class="d">See how the triangle counts the edges of complete graphs.</span></a></li>
+    <li><a href="complement.html"><span class="t">The Complement of a Graph</span><span class="go">Open</span><span class="d">Colour the edges and non-edges, then build a graph and its complement side by side.</span></a></li>
+    <li><a href="quiz.html"><span class="t">Test Yourself</span><span class="go">Open</span><span class="d">A quiz for the whole group: four players, three questions each, with the answers revealed at the end. Or practise on your own.</span></a></li>
+    <li><a href="game.html"><span class="t">Bonus Game: Colour Escape</span><span class="go">Play</span><span class="d">Two to four players walk across a graph painting it. Your colour may never touch itself. Get trapped and you lose.</span></a></li>
+  </ol>
+</section>
+
+<footer>Built for learners at the <b>Wits School of Education</b>. Graph Theory Lab.</footer>
+
+<script>
+/* One quiet moment of motion: a drifting graph behind the title */
+(function(){
+  const c=document.getElementById('bg'),x=c.getContext('2d');
+  const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  let w,h,pts=[];const CS=['#38bdf8','#ff5d9e','#a3e635','#fbbf24','#a78bfa','#fb923c'];
+  function fit(){const r=devicePixelRatio||1;w=c.clientWidth;h=c.clientHeight;c.width=w*r;c.height=h*r;x.setTransform(r,0,0,r,0,0);
+    const n=Math.round(Math.min(48,w*h/16000));pts=Array.from({length:n},()=>({c:CS[Math.floor(Math.random()*CS.length)],x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35}))}
+  function frame(){
+    x.clearRect(0,0,w,h);const L=150;
+    for(let i=0;i<pts.length;i++){const p=pts[i];
+      if(!still){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1}
+      for(let j=i+1;j<pts.length;j++){const q=pts[j],d=Math.hypot(p.x-q.x,p.y-q.y);
+        if(d<L){x.strokeStyle='rgba(125,211,252,'+(0.35*(1-d/L))+')';x.lineWidth=1.3;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.stroke()}}}
+    pts.forEach(p=>{x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,4,0,7);x.fill()});
+    if(!still)requestAnimationFrame(frame)}
+  addEventListener('resize',()=>{fit();if(still)frame()});fit();frame();
+})();
+</script>
+<script>
+(function(){const b=document.body,btn=document.getElementById('menuBtn'),dr=document.getElementById('drawer'),sc=document.getElementById('scrim');
+function set(o,f){b.classList.toggle('menu-open',o);btn.setAttribute('aria-expanded',o);dr.setAttribute('aria-hidden',!o);sc.hidden=!o;
+  if(f!==false){if(o){const a=dr.querySelector('a.here')||dr.querySelector('a');a&&a.focus()}else btn.focus()}}
+btn.onclick=()=>set(!b.classList.contains('menu-open'));
+document.getElementById('menuClose').onclick=()=>set(false);sc.onclick=()=>set(false);
+dr.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false,false)));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&b.classList.contains('menu-open'))set(false)});})();
+</script>
+</body>
+</html>
